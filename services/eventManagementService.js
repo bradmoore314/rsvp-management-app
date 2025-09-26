@@ -374,6 +374,83 @@ class EventManagementService {
     }
 
     /**
+     * Update an existing event
+     */
+    async updateEvent(eventId, updateData) {
+        try {
+            return await this.eventService.updateEvent(eventId, updateData);
+        } catch (error) {
+            console.error('❌ Failed to update event:', error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Delete an event
+     */
+    async deleteEvent(eventId) {
+        try {
+            // First delete all associated invites and RSVPs
+            await this.inviteService.deleteInvitesByEvent(eventId);
+            await this.rsvpService.deleteRSVPsByEvent(eventId);
+            
+            // Then delete the event
+            return await this.eventService.deleteEvent(eventId);
+        } catch (error) {
+            console.error('❌ Failed to delete event:', error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Duplicate an event
+     */
+    async duplicateEvent(eventId, newEventData = {}) {
+        try {
+            return await this.eventService.duplicateEvent(eventId, newEventData);
+        } catch (error) {
+            console.error('❌ Failed to duplicate event:', error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Change event status
+     */
+    async changeEventStatus(eventId, status) {
+        try {
+            return await this.eventService.changeEventStatus(eventId, status);
+        } catch (error) {
+            console.error('❌ Failed to change event status:', error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Get events by category
+     */
+    async getEventsByCategory(category) {
+        try {
+            return await this.eventService.getEventsByCategory(category);
+        } catch (error) {
+            console.error('❌ Failed to get events by category:', error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Get events by status
+     */
+    async getEventsByStatus(status) {
+        try {
+            return await this.eventService.getEventsByStatus(status);
+        } catch (error) {
+            console.error('❌ Failed to get events by status:', error.message);
+            throw error;
+        }
+    }
+
+    /**
      * Check if service is ready
      */
     isReady() {

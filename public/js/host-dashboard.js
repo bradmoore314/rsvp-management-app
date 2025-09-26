@@ -93,6 +93,42 @@ class HostDashboard {
             this.createEvent();
         });
 
+        // Event editing
+        document.getElementById('eventEditForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.updateEvent();
+        });
+
+        document.getElementById('deleteEventBtn').addEventListener('click', () => {
+            this.deleteEvent();
+        });
+
+        // Enhanced form interactions
+        document.getElementById('showDressCode').addEventListener('change', (e) => {
+            document.getElementById('dressCodeGroup').style.display = e.target.checked ? 'block' : 'none';
+        });
+
+        document.getElementById('showHostMessage').addEventListener('change', (e) => {
+            document.getElementById('hostMessageGroup').style.display = e.target.checked ? 'block' : 'none';
+        });
+
+        document.getElementById('reminderEnabled').addEventListener('change', (e) => {
+            document.getElementById('reminderDaysGroup').style.display = e.target.checked ? 'block' : 'none';
+        });
+
+        // Edit form interactions
+        document.getElementById('editShowDressCode').addEventListener('change', (e) => {
+            document.getElementById('editDressCodeGroup').style.display = e.target.checked ? 'block' : 'none';
+        });
+
+        document.getElementById('editShowHostMessage').addEventListener('change', (e) => {
+            document.getElementById('editHostMessageGroup').style.display = e.target.checked ? 'block' : 'none';
+        });
+
+        document.getElementById('editReminderEnabled').addEventListener('change', (e) => {
+            document.getElementById('editReminderDaysGroup').style.display = e.target.checked ? 'block' : 'none';
+        });
+
         // Settings
         document.getElementById('saveSettingsBtn').addEventListener('click', () => {
             this.saveSettings();
@@ -303,8 +339,22 @@ class HostDashboard {
                         <div>
                             <h3 class="event-title">${event.name}</h3>
                             <p class="event-date">${new Date(event.date).toLocaleDateString()} at ${event.time}</p>
+                            <div class="event-meta">
+                                <span class="event-category">${event.eventCategory || 'General'}</span>
+                                ${event.eventTags && event.eventTags.length > 0 ? `<span class="event-tags">${event.eventTags.join(', ')}</span>` : ''}
+                            </div>
                         </div>
-                        <span class="event-status ${event.status || 'active'}">${event.status || 'active'}</span>
+                        <div class="event-status-container">
+                            <span class="event-status ${event.status || 'active'}">${event.status || 'active'}</span>
+                            <div class="event-status-actions">
+                                ${event.status === 'active' ? 
+                                    `<button class="btn btn-small btn-warning" onclick="dashboard.changeEventStatus('${event.id}', 'paused')">Pause</button>` :
+                                    event.status === 'paused' ?
+                                    `<button class="btn btn-small btn-success" onclick="dashboard.changeEventStatus('${event.id}', 'active')">Resume</button>` :
+                                    ''
+                                }
+                            </div>
+                        </div>
                     </div>
                     <div class="event-details">
                         <div class="event-detail">
@@ -327,11 +377,26 @@ class HostDashboard {
                             <span>🎉</span>
                             <span>${event.summary?.attending || 0} attending (${event.summary?.totalGuests || 0} total guests)</span>
                         </div>
+                        ${event.displayOptions?.showDressCode && event.dressCode ? `
+                        <div class="event-detail">
+                            <span>👔</span>
+                            <span>Dress Code: ${event.dressCode}</span>
+                        </div>
+                        ` : ''}
+                        ${event.displayOptions?.showHostMessage && event.hostMessage ? `
+                        <div class="event-detail">
+                            <span>💬</span>
+                            <span>Host Message: ${event.hostMessage.substring(0, 50)}${event.hostMessage.length > 50 ? '...' : ''}</span>
+                        </div>
+                        ` : ''}
                     </div>
                     <div class="event-actions">
                         <button class="btn btn-primary" onclick="dashboard.viewEvent('${event.id}')">View Details</button>
                         <button class="btn btn-secondary" onclick="dashboard.generateInvitesForEvent('${event.id}')">Generate Invites</button>
+                        <button class="btn btn-secondary" onclick="dashboard.printQRCodes('${event.id}')">Print QR Codes</button>
                         <button class="btn btn-secondary" onclick="dashboard.viewRSVPs('${event.id}')">View RSVPs</button>
+                        <button class="btn btn-secondary" onclick="dashboard.showEventEditModal('${event.id}')">Edit Event</button>
+                        <button class="btn btn-secondary" onclick="dashboard.duplicateEvent('${event.id}')">Duplicate</button>
                     </div>
                 </div>
             `).join('');
@@ -371,6 +436,61 @@ class HostDashboard {
 
     hideEventModal() {
         document.getElementById('eventModal').style.display = 'none';
+        this.clearEventForm();
+    }
+
+    showEventEditModal(eventId) {
+        const event = this.events.find(e => e.id === eventId);
+        if (!event) {
+            this.showStatus('Event not found', 'error');
+            return;
+        }
+
+        // Populate edit form with event data
+        document.getElementById('editEventId').value = event.id;
+        document.getElementById('editEventName').value = event.name;
+        document.getElementById('editEventDescription').value = event.description || '';
+        document.getElementById('editEventDate').value = event.date;
+        document.getElementById('editEventStartTime').value = event.time;
+        document.getElementById('editEventEndTime').value = event.endTime || '';
+        document.getElementById('editEventLocation').value = event.location;
+        document.getElementById('editMaxGuests').value = event.maxGuests || '';
+        document.getElementById('editRsvpDeadline').value = event.rsvpDeadline || '';
+        document.getElementById('editEventCategory').value = event.eventCategory || 'General';
+        document.getElementById('editEventTags').value = event.eventTags ? event.eventTags.join(', ') : '';
+        document.getElementById('editDietaryOptions').value = event.dietaryOptions ? event.dietaryOptions.join('\n') : '';
+        document.getElementById('editSpecialInstructions').value = event.specialInstructions || '';
+        
+        // Display options
+        document.getElementById('editShowDietaryRestrictions').checked = event.displayOptions?.showDietaryRestrictions !== false;
+        document.getElementById('editShowDressCode').checked = event.displayOptions?.showDressCode || false;
+        document.getElementById('editShowHostMessage').checked = event.displayOptions?.showHostMessage || false;
+        document.getElementById('editDressCode').value = event.dressCode || '';
+        document.getElementById('editHostMessage').value = event.hostMessage || '';
+        
+        // Event management
+        document.getElementById('editEventStatus').value = event.status || 'active';
+        document.getElementById('editReminderEnabled').checked = event.reminderSettings?.enabled || false;
+        document.getElementById('editReminderDays').value = event.reminderSettings?.daysBefore || 7;
+        
+        // Show/hide conditional fields
+        document.getElementById('editDressCodeGroup').style.display = event.displayOptions?.showDressCode ? 'block' : 'none';
+        document.getElementById('editHostMessageGroup').style.display = event.displayOptions?.showHostMessage ? 'block' : 'none';
+        document.getElementById('editReminderDaysGroup').style.display = event.reminderSettings?.enabled ? 'block' : 'none';
+
+        document.getElementById('eventEditModal').style.display = 'block';
+    }
+
+    hideEventEditModal() {
+        document.getElementById('eventEditModal').style.display = 'none';
+    }
+
+    clearEventForm() {
+        document.getElementById('eventForm').reset();
+        document.getElementById('dressCodeGroup').style.display = 'none';
+        document.getElementById('hostMessageGroup').style.display = 'none';
+        document.getElementById('reminderDaysGroup').style.display = 'none';
+        document.getElementById('imagePreview').style.display = 'none';
     }
 
     async createEvent() {
@@ -402,6 +522,22 @@ class HostDashboard {
             formData.append('location', eventLocation);
             formData.append('maxGuests', document.getElementById('maxGuests').value ? parseInt(document.getElementById('maxGuests').value) : '');
             formData.append('rsvpDeadline', document.getElementById('rsvpDeadline').value || '');
+            
+            // Enhanced configuration options
+            formData.append('eventCategory', document.getElementById('eventCategory').value || 'General');
+            formData.append('eventTags', document.getElementById('eventTags').value || '');
+            
+            // Display options
+            formData.append('showDietaryRestrictions', document.getElementById('showDietaryRestrictions').checked);
+            formData.append('showDressCode', document.getElementById('showDressCode').checked);
+            formData.append('showHostMessage', document.getElementById('showHostMessage').checked);
+            formData.append('dressCode', document.getElementById('dressCode').value || '');
+            formData.append('hostMessage', document.getElementById('hostMessage').value || '');
+            
+            // Event management
+            formData.append('status', document.getElementById('eventStatus').value || 'active');
+            formData.append('reminderEnabled', document.getElementById('reminderEnabled').checked);
+            formData.append('reminderDays', document.getElementById('reminderDays').value || '7');
             
             // Handle dietary options
             const dietaryText = document.getElementById('dietaryOptions').value;
@@ -444,6 +580,287 @@ class HostDashboard {
         } catch (error) {
             console.error('❌ Failed to create event:', error);
             this.showStatus(`Failed to create event: ${error.message}`, 'error');
+        }
+    }
+
+    async updateEvent() {
+        try {
+            const eventId = document.getElementById('editEventId').value;
+            if (!eventId) {
+                this.showStatus('Event ID not found', 'error');
+                return;
+            }
+
+            // Validate required fields
+            const eventName = document.getElementById('editEventName').value;
+            const eventDate = document.getElementById('editEventDate').value;
+            const eventTime = document.getElementById('editEventStartTime').value;
+            const eventLocation = document.getElementById('editEventLocation').value;
+            
+            if (!eventName || !eventDate || !eventTime || !eventLocation) {
+                this.showStatus('Please fill in all required fields (Name, Date, Time, Location)', 'error');
+                return;
+            }
+
+            const updateData = {
+                name: eventName,
+                description: document.getElementById('editEventDescription').value || '',
+                date: eventDate,
+                time: eventTime,
+                endTime: document.getElementById('editEventEndTime').value || '',
+                location: eventLocation,
+                maxGuests: document.getElementById('editMaxGuests').value ? parseInt(document.getElementById('editMaxGuests').value) : null,
+                rsvpDeadline: document.getElementById('editRsvpDeadline').value || '',
+                eventCategory: document.getElementById('editEventCategory').value || 'General',
+                eventTags: document.getElementById('editEventTags').value ? document.getElementById('editEventTags').value.split(',').map(tag => tag.trim()).filter(tag => tag) : [],
+                dietaryOptions: document.getElementById('editDietaryOptions').value ? document.getElementById('editDietaryOptions').value.split('\n').filter(option => option.trim()) : ['No Restrictions'],
+                specialInstructions: document.getElementById('editSpecialInstructions').value || '',
+                displayOptions: {
+                    showDietaryRestrictions: document.getElementById('editShowDietaryRestrictions').checked,
+                    showDressCode: document.getElementById('editShowDressCode').checked,
+                    showHostMessage: document.getElementById('editShowHostMessage').checked
+                },
+                dressCode: document.getElementById('editDressCode').value || '',
+                hostMessage: document.getElementById('editHostMessage').value || '',
+                status: document.getElementById('editEventStatus').value || 'active',
+                reminderSettings: {
+                    enabled: document.getElementById('editReminderEnabled').checked,
+                    daysBefore: parseInt(document.getElementById('editReminderDays').value) || 7
+                }
+            };
+
+            this.showStatus('Updating event...', 'info');
+
+            const response = await this.apiCall(`/event-management/update/${eventId}`, {
+                method: 'PUT',
+                body: JSON.stringify(updateData)
+            });
+
+            if (response.success) {
+                this.showStatus('Event updated successfully!', 'success');
+                this.hideEventEditModal();
+                await this.loadEvents();
+                await this.loadOverviewStats();
+            } else {
+                throw new Error(response.message || 'Failed to update event');
+            }
+        } catch (error) {
+            console.error('❌ Failed to update event:', error);
+            this.showStatus(`Failed to update event: ${error.message}`, 'error');
+        }
+    }
+
+    async deleteEvent() {
+        try {
+            const eventId = document.getElementById('editEventId').value;
+            if (!eventId) {
+                this.showStatus('Event ID not found', 'error');
+                return;
+            }
+
+            const eventName = document.getElementById('editEventName').value;
+            if (!confirm(`Are you sure you want to delete "${eventName}"? This action cannot be undone.`)) {
+                return;
+            }
+
+            this.showStatus('Deleting event...', 'info');
+
+            const response = await this.apiCall(`/event-management/delete/${eventId}`, {
+                method: 'DELETE'
+            });
+
+            if (response.success) {
+                this.showStatus('Event deleted successfully!', 'success');
+                this.hideEventEditModal();
+                await this.loadEvents();
+                await this.loadOverviewStats();
+            } else {
+                throw new Error(response.message || 'Failed to delete event');
+            }
+        } catch (error) {
+            console.error('❌ Failed to delete event:', error);
+            this.showStatus(`Failed to delete event: ${error.message}`, 'error');
+        }
+    }
+
+    async duplicateEvent(eventId) {
+        try {
+            const event = this.events.find(e => e.id === eventId);
+            if (!event) {
+                this.showStatus('Event not found', 'error');
+                return;
+            }
+
+            const newEventName = prompt(`Enter name for the duplicated event:`, `${event.name} (Copy)`);
+            if (!newEventName) return;
+
+            this.showStatus('Duplicating event...', 'info');
+
+            const response = await this.apiCall(`/event-management/duplicate/${eventId}`, {
+                method: 'POST',
+                body: JSON.stringify({ name: newEventName })
+            });
+
+            if (response.success) {
+                this.showStatus('Event duplicated successfully!', 'success');
+                await this.loadEvents();
+                await this.loadOverviewStats();
+            } else {
+                throw new Error(response.message || 'Failed to duplicate event');
+            }
+        } catch (error) {
+            console.error('❌ Failed to duplicate event:', error);
+            this.showStatus(`Failed to duplicate event: ${error.message}`, 'error');
+        }
+    }
+
+    async changeEventStatus(eventId, status) {
+        try {
+            this.showStatus(`Changing event status to ${status}...`, 'info');
+
+            const response = await this.apiCall(`/event-management/status/${eventId}`, {
+                method: 'PUT',
+                body: JSON.stringify({ status })
+            });
+
+            if (response.success) {
+                this.showStatus(`Event status changed to ${status}!`, 'success');
+                await this.loadEvents();
+                await this.loadOverviewStats();
+            } else {
+                throw new Error(response.message || 'Failed to change event status');
+            }
+        } catch (error) {
+            console.error('❌ Failed to change event status:', error);
+            this.showStatus(`Failed to change event status: ${error.message}`, 'error');
+        }
+    }
+
+    async printQRCodes(eventId) {
+        try {
+            const event = this.events.find(e => e.id === eventId);
+            if (!event) {
+                this.showStatus('Event not found', 'error');
+                return;
+            }
+
+            this.showStatus('Loading QR codes for printing...', 'info');
+
+            // Get all invites for this event
+            const response = await this.apiCall(`/invites/event/${eventId}`);
+            
+            if (!response.success || !response.data || response.data.length === 0) {
+                this.showStatus('No QR codes found for this event. Generate invites first.', 'error');
+                return;
+            }
+
+            // Create print-friendly page
+            const printWindow = window.open('', '_blank');
+            const qrCodes = response.data;
+            
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>QR Codes - ${event.name}</title>
+                    <style>
+                        body {
+                            font-family: Arial, sans-serif;
+                            margin: 20px;
+                            background: white;
+                        }
+                        .header {
+                            text-align: center;
+                            margin-bottom: 30px;
+                            border-bottom: 2px solid #333;
+                            padding-bottom: 20px;
+                        }
+                        .qr-grid {
+                            display: grid;
+                            grid-template-columns: repeat(3, 1fr);
+                            gap: 20px;
+                            margin-bottom: 30px;
+                        }
+                        .qr-item {
+                            text-align: center;
+                            border: 1px solid #ddd;
+                            padding: 15px;
+                            border-radius: 8px;
+                            page-break-inside: avoid;
+                        }
+                        .qr-code {
+                            margin: 10px 0;
+                        }
+                        .qr-code img {
+                            max-width: 150px;
+                            height: auto;
+                        }
+                        .invite-info {
+                            font-size: 12px;
+                            color: #666;
+                            margin-top: 10px;
+                        }
+                        .event-info {
+                            background: #f5f5f5;
+                            padding: 15px;
+                            border-radius: 8px;
+                            margin-bottom: 20px;
+                        }
+                        @media print {
+                            body { margin: 0; }
+                            .qr-grid { grid-template-columns: repeat(2, 1fr); }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>${event.name}</h1>
+                        <p>QR Code Invitations</p>
+                        <p>Generated on ${new Date().toLocaleDateString()}</p>
+                    </div>
+                    
+                    <div class="event-info">
+                        <h3>Event Details</h3>
+                        <p><strong>Date:</strong> ${new Date(event.date).toLocaleDateString()}</p>
+                        <p><strong>Time:</strong> ${event.time}${event.endTime ? ` - ${event.endTime}` : ''}</p>
+                        <p><strong>Location:</strong> ${event.location}</p>
+                        <p><strong>Host:</strong> ${event.hostName}</p>
+                    </div>
+                    
+                    <div class="qr-grid">
+                        ${qrCodes.map(invite => `
+                            <div class="qr-item">
+                                <div class="qr-code">
+                                    <img src="${invite.qrCodeUrl}" alt="QR Code">
+                                </div>
+                                <div class="invite-info">
+                                    <p><strong>Invite #${invite.inviteNumber}</strong></p>
+                                    <p>Scan to RSVP</p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 30px; font-size: 12px; color: #666;">
+                        <p>Total QR Codes: ${qrCodes.length}</p>
+                        <p>Print this page and cut along the dotted lines to distribute QR codes</p>
+                    </div>
+                </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            
+            // Wait for images to load, then print
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+                this.showStatus('QR codes ready for printing!', 'success');
+            }, 1000);
+            
+        } catch (error) {
+            console.error('❌ Failed to print QR codes:', error);
+            this.showStatus(`Failed to print QR codes: ${error.message}`, 'error');
         }
     }
 
@@ -916,40 +1333,45 @@ class HostDashboard {
 
             this.showStatus('Loading RSVP data...', 'info');
 
-            // Try to get RSVP data for this event
-            const response = await fetch(`/rsvp-management/stats/${eventId}`);
-            const result = await response.json();
+            // Get both stats and detailed RSVP responses
+            const [statsResponse, rsvpsResponse] = await Promise.all([
+                fetch(`/rsvp-management/stats/${eventId}`),
+                fetch(`/rsvp-management/responses/${eventId}`)
+            ]);
+            
+            const statsResult = await statsResponse.json();
+            const rsvpsResult = await rsvpsResponse.json();
 
             const modal = document.createElement('div');
             modal.className = 'modal';
             modal.style.display = 'block';
             modal.innerHTML = `
-                <div class="modal-content" style="max-width: 700px;">
+                <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
                     <div class="modal-header">
                         <h3>RSVP Responses for "${event.name}"</h3>
                         <button class="modal-close">&times;</button>
                     </div>
                     <div class="modal-body">
-                        ${result.success ? `
+                        ${statsResult.success ? `
                             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px;">
                                 <div style="background: #f0fff4; padding: 16px; border-radius: 8px; text-align: center; border: 1px solid #9ae6b4;">
-                                    <div style="font-size: 1.5rem; font-weight: 600; color: #22543d;">${result.data?.attending || 0}</div>
+                                    <div style="font-size: 1.5rem; font-weight: 600; color: #22543d;">${statsResult.data?.attending || 0}</div>
                                     <div style="font-size: 0.875rem; color: #22543d;">Attending</div>
                                 </div>
                                 <div style="background: #fed7d7; padding: 16px; border-radius: 8px; text-align: center; border: 1px solid #feb2b2;">
-                                    <div style="font-size: 1.5rem; font-weight: 600; color: #742a2a;">${result.data?.notAttending || 0}</div>
+                                    <div style="font-size: 1.5rem; font-weight: 600; color: #742a2a;">${statsResult.data?.notAttending || 0}</div>
                                     <div style="font-size: 0.875rem; color: #742a2a;">Not Attending</div>
                                 </div>
                                 <div style="background: #ebf8ff; padding: 16px; border-radius: 8px; text-align: center; border: 1px solid #90cdf4;">
-                                    <div style="font-size: 1.5rem; font-weight: 600; color: #2a4365;">${result.data?.maybe || 0}</div>
+                                    <div style="font-size: 1.5rem; font-weight: 600; color: #2a4365;">${statsResult.data?.maybe || 0}</div>
                                     <div style="font-size: 0.875rem; color: #2a4365;">Maybe</div>
                                 </div>
                             </div>
                             <div style="background: #f7fafc; padding: 16px; border-radius: 8px; margin-bottom: 20px;">
                                 <p style="margin: 0; font-size: 0.875rem; color: #4a5568;">
-                                    <strong>Total Responses:</strong> ${result.data?.totalResponses || 0} | 
-                                    <strong>Total Guests:</strong> ${result.data?.totalGuests || 0} | 
-                                    <strong>Response Rate:</strong> ${result.data?.responseRate || 0}%
+                                    <strong>Total Responses:</strong> ${statsResult.data?.totalResponses || 0} | 
+                                    <strong>Total Guests:</strong> ${statsResult.data?.totalGuests || 0} | 
+                                    <strong>Response Rate:</strong> ${statsResult.data?.responseRate || 0}%
                                 </p>
                             </div>
                         ` : `
@@ -959,6 +1381,67 @@ class HostDashboard {
                                 <p style="margin: 0;">Generate invites and share them with guests to start collecting RSVP responses.</p>
                             </div>
                         `}
+                        
+                        ${rsvpsResult.success && rsvpsResult.data && rsvpsResult.data.length > 0 ? `
+                            <div style="margin-top: 24px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                                    <h4 style="margin: 0;">Guest Responses</h4>
+                                    <div style="display: flex; gap: 12px; align-items: center;">
+                                        <input type="text" id="guestSearch" placeholder="Search guests..." style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.875rem;">
+                                        <select id="attendanceFilter" style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.875rem;">
+                                            <option value="">All Responses</option>
+                                            <option value="yes">Attending</option>
+                                            <option value="no">Not Attending</option>
+                                            <option value="maybe">Maybe</option>
+                                        </select>
+                                        <button class="btn btn-secondary" onclick="dashboard.exportGuestList('${eventId}')">Export</button>
+                                    </div>
+                                </div>
+                                <div id="guestList" style="max-height: 400px; overflow-y: auto;">
+                                    ${rsvpsResult.data.map(rsvp => `
+                                        <div class="guest-card" data-attendance="${rsvp.attendance}" data-name="${rsvp.guestName.toLowerCase()}" data-email="${rsvp.guestEmail.toLowerCase()}">
+                                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                                                <div>
+                                                    <h5 style="margin: 0 0 4px 0; font-size: 1rem; color: #2d3748;">${rsvp.guestName}</h5>
+                                                    <p style="margin: 0; font-size: 0.875rem; color: #718096;">${rsvp.guestEmail}</p>
+                                                </div>
+                                                <span class="attendance-badge ${rsvp.attendance}" style="padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase;">
+                                                    ${rsvp.attendance === 'yes' ? 'Attending' : rsvp.attendance === 'no' ? 'Not Attending' : 'Maybe'}
+                                                </span>
+                                            </div>
+                                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.875rem; color: #4a5568;">
+                                                <div>
+                                                    <strong>Guests:</strong> ${rsvp.guestCount || 1}
+                                                </div>
+                                                <div>
+                                                    <strong>Submitted:</strong> ${new Date(rsvp.submittedAt).toLocaleDateString()}
+                                                </div>
+                                                ${rsvp.guestPhone ? `
+                                                <div>
+                                                    <strong>Phone:</strong> ${rsvp.guestPhone}
+                                                </div>
+                                                ` : ''}
+                                                ${rsvp.emergencyContact ? `
+                                                <div>
+                                                    <strong>Emergency Contact:</strong> ${rsvp.emergencyContact}
+                                                </div>
+                                                ` : ''}
+                                            </div>
+                                            ${rsvp.dietaryRestrictions ? `
+                                            <div style="margin-top: 8px; font-size: 0.875rem;">
+                                                <strong>Dietary Restrictions:</strong> ${rsvp.dietaryRestrictions}
+                                            </div>
+                                            ` : ''}
+                                            ${rsvp.message ? `
+                                            <div style="margin-top: 8px; font-size: 0.875rem; color: #4a5568; font-style: italic;">
+                                                "${rsvp.message}"
+                                            </div>
+                                            ` : ''}
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary modal-cancel">Close</button>
@@ -984,9 +1467,104 @@ class HostDashboard {
                     document.body.removeChild(modal);
                 }
             });
+
+            // Add search and filter functionality
+            if (rsvpsResult.success && rsvpsResult.data && rsvpsResult.data.length > 0) {
+                const searchInput = modal.querySelector('#guestSearch');
+                const filterSelect = modal.querySelector('#attendanceFilter');
+                const guestCards = modal.querySelectorAll('.guest-card');
+
+                const filterGuests = () => {
+                    const searchTerm = searchInput.value.toLowerCase();
+                    const filterValue = filterSelect.value;
+
+                    guestCards.forEach(card => {
+                        const name = card.dataset.name;
+                        const email = card.dataset.email;
+                        const attendance = card.dataset.attendance;
+
+                        const matchesSearch = !searchTerm || name.includes(searchTerm) || email.includes(searchTerm);
+                        const matchesFilter = !filterValue || attendance === filterValue;
+
+                        card.style.display = matchesSearch && matchesFilter ? 'block' : 'none';
+                    });
+                };
+
+                searchInput.addEventListener('input', filterGuests);
+                filterSelect.addEventListener('change', filterGuests);
+            }
         } catch (error) {
             console.error('Error showing event RSVPs:', error);
             this.showStatus('Error loading RSVP data', 'error');
+        }
+    }
+
+    async exportGuestList(eventId) {
+        try {
+            const event = this.events.find(e => e.id === eventId);
+            if (!event) {
+                this.showStatus('Event not found', 'error');
+                return;
+            }
+
+            this.showStatus('Exporting guest list...', 'info');
+
+            const response = await fetch(`/rsvp-management/responses/${eventId}`);
+            const result = await response.json();
+
+            if (!result.success || !result.data) {
+                this.showStatus('No guest data to export', 'error');
+                return;
+            }
+
+            // Create CSV content
+            const csvHeaders = [
+                'Name',
+                'Email',
+                'Phone',
+                'Emergency Contact',
+                'Attendance',
+                'Guest Count',
+                'Dietary Restrictions',
+                'Message',
+                'Submitted At'
+            ];
+
+            const csvRows = [csvHeaders.join(',')];
+
+            result.data.forEach(rsvp => {
+                const row = [
+                    `"${rsvp.guestName}"`,
+                    `"${rsvp.guestEmail}"`,
+                    `"${rsvp.guestPhone || ''}"`,
+                    `"${rsvp.emergencyContact || ''}"`,
+                    `"${rsvp.attendance}"`,
+                    rsvp.guestCount || 1,
+                    `"${rsvp.dietaryRestrictions || ''}"`,
+                    `"${rsvp.message || ''}"`,
+                    `"${new Date(rsvp.submittedAt).toLocaleString()}"`
+                ];
+                csvRows.push(row.join(','));
+            });
+
+            const csvContent = csvRows.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            
+            if (link.download !== undefined) {
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `${event.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_guest_list.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+
+            this.showStatus('Guest list exported successfully!', 'success');
+        } catch (error) {
+            console.error('❌ Failed to export guest list:', error);
+            this.showStatus(`Failed to export guest list: ${error.message}`, 'error');
         }
     }
 

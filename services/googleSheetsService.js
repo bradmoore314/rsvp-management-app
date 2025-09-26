@@ -148,13 +148,13 @@ class GoogleSheetsService {
 
             // Add headers
             const headers = [
-                'Timestamp', 'Guest Name', 'Guest Email', 'Attendance', 
-                'Guest Count', 'Dietary Restrictions', 'Message', 'Invite ID'
+                'Timestamp', 'Guest Name', 'Guest Email', 'Phone Number', 'Emergency Contact', 
+                'Attendance', 'Guest Count', 'Dietary Restrictions', 'Message', 'Invite ID'
             ];
 
             const headerRequest = {
                 spreadsheetId: this.spreadsheetId,
-                range: 'RSVP Responses!A1:H1',
+                range: 'RSVP Responses!A1:J1',
                 valueInputOption: 'RAW',
                 resource: {
                     values: [headers]
@@ -214,6 +214,8 @@ class GoogleSheetsService {
                 rsvpData.timestamp,
                 rsvpData.guestName,
                 rsvpData.guestEmail,
+                rsvpData.guestPhone || '',
+                rsvpData.emergencyContact || '',
                 rsvpData.attendance,
                 rsvpData.guestCount,
                 rsvpData.dietaryRestrictions ? rsvpData.dietaryRestrictions.join(', ') : '',
@@ -223,7 +225,7 @@ class GoogleSheetsService {
 
             const request = {
                 spreadsheetId: spreadsheetId,
-                range: 'RSVP Responses!A:H',
+                range: 'RSVP Responses!A:J',
                 valueInputOption: 'RAW',
                 insertDataOption: 'INSERT_ROWS',
                 resource: {

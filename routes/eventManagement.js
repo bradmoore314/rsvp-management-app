@@ -415,4 +415,161 @@ router.post('/validate-event', requireHostAuth, async (req, res) => {
     }
 });
 
+/**
+ * Update an existing event
+ */
+router.put('/update/:eventId', async (req, res) => {
+    try {
+        const { eventId } = req.params;
+        const updateData = req.body;
+        
+        console.log(`✏️ Updating event: ${eventId}`);
+        console.log('📝 Update data:', updateData);
+        
+        const updatedEvent = await eventManagementService.updateEvent(eventId, updateData);
+        
+        res.json({
+            success: true,
+            data: updatedEvent,
+            message: 'Event updated successfully'
+        });
+    } catch (error) {
+        console.error('❌ Failed to update event:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to update event',
+            message: error.message
+        });
+    }
+});
+
+/**
+ * Delete an event
+ */
+router.delete('/delete/:eventId', async (req, res) => {
+    try {
+        const { eventId } = req.params;
+        
+        console.log(`🗑️ Deleting event: ${eventId}`);
+        
+        await eventManagementService.deleteEvent(eventId);
+        
+        res.json({
+            success: true,
+            message: 'Event deleted successfully'
+        });
+    } catch (error) {
+        console.error('❌ Failed to delete event:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to delete event',
+            message: error.message
+        });
+    }
+});
+
+/**
+ * Duplicate an event
+ */
+router.post('/duplicate/:eventId', async (req, res) => {
+    try {
+        const { eventId } = req.params;
+        const { name } = req.body;
+        
+        console.log(`📋 Duplicating event: ${eventId}`);
+        
+        const duplicatedEvent = await eventManagementService.duplicateEvent(eventId, { name });
+        
+        res.json({
+            success: true,
+            data: duplicatedEvent,
+            message: 'Event duplicated successfully'
+        });
+    } catch (error) {
+        console.error('❌ Failed to duplicate event:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to duplicate event',
+            message: error.message
+        });
+    }
+});
+
+/**
+ * Change event status
+ */
+router.put('/status/:eventId', async (req, res) => {
+    try {
+        const { eventId } = req.params;
+        const { status } = req.body;
+        
+        console.log(`🔄 Changing event status: ${eventId} to ${status}`);
+        
+        const updatedEvent = await eventManagementService.changeEventStatus(eventId, status);
+        
+        res.json({
+            success: true,
+            data: updatedEvent,
+            message: `Event status changed to ${status}`
+        });
+    } catch (error) {
+        console.error('❌ Failed to change event status:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to change event status',
+            message: error.message
+        });
+    }
+});
+
+/**
+ * Get events by category
+ */
+router.get('/category/:category', async (req, res) => {
+    try {
+        const { category } = req.params;
+        
+        console.log(`📂 Getting events by category: ${category}`);
+        
+        const events = await eventManagementService.getEventsByCategory(category);
+        
+        res.json({
+            success: true,
+            data: events
+        });
+    } catch (error) {
+        console.error('❌ Failed to get events by category:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to get events by category',
+            message: error.message
+        });
+    }
+});
+
+/**
+ * Get events by status
+ */
+router.get('/status/:status', async (req, res) => {
+    try {
+        const { status } = req.params;
+        
+        console.log(`📊 Getting events by status: ${status}`);
+        
+        const events = await eventManagementService.getEventsByStatus(status);
+        
+        res.json({
+            success: true,
+            data: events
+        });
+    } catch (error) {
+        console.error('❌ Failed to get events by status:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to get events by status',
+            message: error.message
+        });
+    }
+});
+
 module.exports = router;

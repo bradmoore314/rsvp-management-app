@@ -317,6 +317,18 @@ router.get('/:eventId/:inviteId', async (req, res) => {
                         </div>
                         
                         <div class="form-group">
+                            <label for="guestPhone">Phone Number (Optional)</label>
+                            <input type="tel" id="guestPhone" name="guestPhone" placeholder="(555) 123-4567">
+                            <small>Helpful for last-minute updates or emergencies</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="emergencyContact">Emergency Contact (Optional)</label>
+                            <input type="text" id="emergencyContact" name="emergencyContact" placeholder="Name and phone number">
+                            <small>In case we need to reach someone if you can't attend</small>
+                        </div>
+                        
+                        <div class="form-group">
                             <label for="attendance">Will you be attending? *</label>
                             <select id="attendance" name="attendance" required>
                                 <option value="">Please select...</option>
@@ -379,6 +391,8 @@ router.get('/:eventId/:inviteId', async (req, res) => {
                             inviteId: '${inviteId}',
                             guestName: document.getElementById('guestName').value,
                             guestEmail: document.getElementById('guestEmail').value,
+                            guestPhone: document.getElementById('guestPhone').value,
+                            emergencyContact: document.getElementById('emergencyContact').value,
                             attendance: document.getElementById('attendance').value,
                             guestCount: parseInt(document.getElementById('guestCount').value),
                             dietaryOptions: dietaryOptions,

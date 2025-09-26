@@ -40,9 +40,27 @@ class EventService {
                     rsvpDeadline: eventData.rsvpDeadline || null,
                     dietaryOptions: eventData.dietaryOptions || [],
                     specialInstructions: eventData.specialInstructions || '',
+                    
+                    // Enhanced configuration options
+                    displayOptions: {
+                        showDietaryRestrictions: eventData.showDietaryRestrictions !== false, // Default true
+                        showDressCode: eventData.showDressCode || false,
+                        showHostMessage: eventData.showHostMessage || false
+                    },
+                    dressCode: eventData.dressCode || '',
+                    hostMessage: eventData.hostMessage || '',
+                    eventCategory: eventData.eventCategory || 'General',
+                    eventTags: eventData.eventTags || [],
+                    
+                    // Event management
+                    status: eventData.status || 'active', // active, paused, cancelled
+                    reminderSettings: {
+                        enabled: eventData.reminderEnabled || false,
+                        daysBefore: eventData.reminderDays || 7
+                    },
+                    
                     created: new Date().toISOString(),
-                    updated: new Date().toISOString(),
-                    status: 'active'
+                    updated: new Date().toISOString()
                 };
 
             // Handle image data if present
@@ -158,6 +176,85 @@ class EventService {
             return events;
         } catch (error) {
             console.error(`❌ Failed to get events for host ${hostEmail}:`, error.message);
+            return [];
+        }
+    }
+
+    /**
+     * Duplicate an existing event
+     */
+    async duplicateEvent(eventId, newEventData = {}) {
+        try {
+            const originalEvent = await this.getEvent(eventId);
+            if (!originalEvent) {
+                throw new Error(`Event not found: ${eventId}`);
+            }
+
+            // Create new event based on original
+            const duplicatedEventData = {
+                ...originalEvent,
+                ...newEventData,
+                name: newEventData.name || `${originalEvent.name} (Copy)`,
+                date: newEventData.date || originalEvent.date,
+                time: newEventData.time || originalEvent.time,
+                location: newEventData.location || originalEvent.location,
+                // Reset status and timestamps
+                status: 'active',
+                created: new Date().toISOString(),
+                updated: new Date().toISOString()
+            };
+
+            // Remove the original ID so a new one gets generated
+            delete duplicatedEventData.id;
+
+            return await this.createEvent(duplicatedEventData);
+        } catch (error) {
+            console.error('❌ Failed to duplicate event:', error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Change event status
+     */
+    async changeEventStatus(eventId, status) {
+        try {
+            const validStatuses = ['active', 'paused', 'cancelled'];
+            if (!validStatuses.includes(status)) {
+                throw new Error(`Invalid status: ${status}. Must be one of: ${validStatuses.join(', ')}`);
+            }
+
+            return await this.updateEvent(eventId, { status });
+        } catch (error) {
+            console.error('❌ Failed to change event status:', error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Get events by category
+     */
+    async getEventsByCategory(category) {
+        try {
+            return Array.from(this.events.values())
+                .filter(event => event.eventCategory === category)
+                .sort((a, b) => new Date(a.date) - new Date(b.date));
+        } catch (error) {
+            console.error(`❌ Failed to get events by category ${category}:`, error.message);
+            return [];
+        }
+    }
+
+    /**
+     * Get events by status
+     */
+    async getEventsByStatus(status) {
+        try {
+            return Array.from(this.events.values())
+                .filter(event => event.status === status)
+                .sort((a, b) => new Date(a.date) - new Date(b.date));
+        } catch (error) {
+            console.error(`❌ Failed to get events by status ${status}:`, error.message);
             return [];
         }
     }

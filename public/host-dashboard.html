@@ -184,12 +184,87 @@
                     </div>
                 </div>
                 <div class="form-group">
+                    <label for="eventCategory">Event Category</label>
+                    <select id="eventCategory">
+                        <option value="General">General</option>
+                        <option value="Wedding">Wedding</option>
+                        <option value="Birthday">Birthday</option>
+                        <option value="Corporate">Corporate</option>
+                        <option value="Holiday">Holiday</option>
+                        <option value="Graduation">Graduation</option>
+                        <option value="Anniversary">Anniversary</option>
+                        <option value="Baby Shower">Baby Shower</option>
+                        <option value="Retirement">Retirement</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="eventTags">Event Tags (comma-separated)</label>
+                    <input type="text" id="eventTags" placeholder="formal, outdoor, family-friendly">
+                </div>
+                <div class="form-group">
                     <label for="dietaryOptions">Dietary Options (one per line)</label>
                     <textarea id="dietaryOptions" rows="2" placeholder="Vegetarian&#10;Vegan&#10;Gluten-Free&#10;No Restrictions"></textarea>
                 </div>
                 <div class="form-group">
                     <label for="specialInstructions">Special Instructions</label>
                     <textarea id="specialInstructions" rows="2"></textarea>
+                </div>
+                
+                <!-- Enhanced Display Options -->
+                <div class="form-section">
+                    <h4>Display Options</h4>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="showDietaryRestrictions" checked>
+                            Show dietary restrictions on invitation
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="showDressCode">
+                            Show dress code on invitation
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="showHostMessage">
+                            Show host message on invitation
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-group" id="dressCodeGroup" style="display: none;">
+                    <label for="dressCode">Dress Code</label>
+                    <input type="text" id="dressCode" placeholder="e.g., Cocktail attire, Casual, Black tie">
+                </div>
+                
+                <div class="form-group" id="hostMessageGroup" style="display: none;">
+                    <label for="hostMessage">Host Message to Guests</label>
+                    <textarea id="hostMessage" rows="3" placeholder="Personal message to include on the invitation..."></textarea>
+                </div>
+                
+                <!-- Event Management Options -->
+                <div class="form-section">
+                    <h4>Event Management</h4>
+                    <div class="form-group">
+                        <label for="eventStatus">Event Status</label>
+                        <select id="eventStatus">
+                            <option value="active">Active (Accepting RSVPs)</option>
+                            <option value="paused">Paused (Temporarily Closed)</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="reminderEnabled">
+                            Enable RSVP reminders
+                        </label>
+                    </div>
+                    <div class="form-group" id="reminderDaysGroup" style="display: none;">
+                        <label for="reminderDays">Send reminder X days before event</label>
+                        <input type="number" id="reminderDays" min="1" max="30" value="7">
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="eventImage">Event Image (Optional)</label>
@@ -203,6 +278,143 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary modal-cancel">Cancel</button>
                 <button type="submit" form="eventForm" class="btn btn-primary">Create Event</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Event Edit Modal -->
+    <div id="eventEditModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Event</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="eventEditForm" class="modal-body">
+                <input type="hidden" id="editEventId">
+                <div class="form-group">
+                    <label for="editEventName">Event Name *</label>
+                    <input type="text" id="editEventName" required>
+                </div>
+                <div class="form-group">
+                    <label for="editEventDescription">Description</label>
+                    <textarea id="editEventDescription" rows="2"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editEventDate">Date *</label>
+                        <input type="date" id="editEventDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editEventStartTime">Start Time *</label>
+                        <input type="time" id="editEventStartTime" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editEventEndTime">End Time</label>
+                        <input type="time" id="editEventEndTime">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="editEventLocation">Location *</label>
+                    <input type="text" id="editEventLocation" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editMaxGuests">Max Guests</label>
+                        <input type="number" id="editMaxGuests" min="1" max="1000">
+                    </div>
+                    <div class="form-group">
+                        <label for="editRsvpDeadline">RSVP Deadline</label>
+                        <input type="date" id="editRsvpDeadline">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="editEventCategory">Event Category</label>
+                    <select id="editEventCategory">
+                        <option value="General">General</option>
+                        <option value="Wedding">Wedding</option>
+                        <option value="Birthday">Birthday</option>
+                        <option value="Corporate">Corporate</option>
+                        <option value="Holiday">Holiday</option>
+                        <option value="Graduation">Graduation</option>
+                        <option value="Anniversary">Anniversary</option>
+                        <option value="Baby Shower">Baby Shower</option>
+                        <option value="Retirement">Retirement</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editEventTags">Event Tags (comma-separated)</label>
+                    <input type="text" id="editEventTags" placeholder="formal, outdoor, family-friendly">
+                </div>
+                <div class="form-group">
+                    <label for="editDietaryOptions">Dietary Options (one per line)</label>
+                    <textarea id="editDietaryOptions" rows="2" placeholder="Vegetarian&#10;Vegan&#10;Gluten-Free&#10;No Restrictions"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="editSpecialInstructions">Special Instructions</label>
+                    <textarea id="editSpecialInstructions" rows="2"></textarea>
+                </div>
+                
+                <!-- Enhanced Display Options -->
+                <div class="form-section">
+                    <h4>Display Options</h4>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="editShowDietaryRestrictions">
+                            Show dietary restrictions on invitation
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="editShowDressCode">
+                            Show dress code on invitation
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="editShowHostMessage">
+                            Show host message on invitation
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-group" id="editDressCodeGroup" style="display: none;">
+                    <label for="editDressCode">Dress Code</label>
+                    <input type="text" id="editDressCode" placeholder="e.g., Cocktail attire, Casual, Black tie">
+                </div>
+                
+                <div class="form-group" id="editHostMessageGroup" style="display: none;">
+                    <label for="editHostMessage">Host Message to Guests</label>
+                    <textarea id="editHostMessage" rows="3" placeholder="Personal message to include on the invitation..."></textarea>
+                </div>
+                
+                <!-- Event Management Options -->
+                <div class="form-section">
+                    <h4>Event Management</h4>
+                    <div class="form-group">
+                        <label for="editEventStatus">Event Status</label>
+                        <select id="editEventStatus">
+                            <option value="active">Active (Accepting RSVPs)</option>
+                            <option value="paused">Paused (Temporarily Closed)</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="editReminderEnabled">
+                            Enable RSVP reminders
+                        </label>
+                    </div>
+                    <div class="form-group" id="editReminderDaysGroup" style="display: none;">
+                        <label for="editReminderDays">Send reminder X days before event</label>
+                        <input type="number" id="editReminderDays" min="1" max="30" value="7">
+                    </div>
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" id="deleteEventBtn">Delete Event</button>
+                <button type="button" class="btn btn-secondary modal-cancel">Cancel</button>
+                <button type="submit" form="eventEditForm" class="btn btn-primary">Save Changes</button>
             </div>
         </div>
     </div>

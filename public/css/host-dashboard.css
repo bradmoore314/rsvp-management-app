@@ -602,3 +602,180 @@ input[type="file"]:focus {
         padding: 16px;
     }
 }
+
+/* Enhanced Form Sections */
+.form-section {
+    margin: 24px 0;
+    padding: 20px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.form-section h4 {
+    margin: 0 0 16px 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    color: #4a5568;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #4299e1;
+}
+
+/* Event Status Styles */
+.event-status-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+.event-status {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.event-status.active {
+    background: #c6f6d5;
+    color: #22543d;
+}
+
+.event-status.paused {
+    background: #fef5e7;
+    color: #744210;
+}
+
+.event-status.cancelled {
+    background: #fed7d7;
+    color: #742a2a;
+}
+
+.event-status-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.btn-small {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    border-radius: 4px;
+}
+
+.btn-warning {
+    background: #ed8936;
+    color: white;
+    border: none;
+}
+
+.btn-warning:hover {
+    background: #dd6b20;
+}
+
+.btn-success {
+    background: #48bb78;
+    color: white;
+    border: none;
+}
+
+.btn-success:hover {
+    background: #38a169;
+}
+
+/* Event Meta Information */
+.event-meta {
+    display: flex;
+    gap: 12px;
+    margin-top: 4px;
+    flex-wrap: wrap;
+}
+
+.event-category {
+    background: #e6fffa;
+    color: #234e52;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.event-tags {
+    color: #718096;
+    font-size: 0.75rem;
+    font-style: italic;
+}
+
+/* Guest Cards and RSVP Display */
+.guest-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+    transition: all 0.2s ease;
+}
+
+.guest-card:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-color: #cbd5e0;
+}
+
+.attendance-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 4px 8px;
+    border-radius: 12px;
+}
+
+.attendance-badge.yes {
+    background: #c6f6d5;
+    color: #22543d;
+}
+
+.attendance-badge.no {
+    background: #fed7d7;
+    color: #742a2a;
+}
+
+.attendance-badge.maybe {
+    background: #ebf8ff;
+    color: #2a4365;
+}
+
+/* Print QR Codes Styles */
+@media print {
+    .qr-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 15px !important;
+    }
+    
+    .qr-item {
+        border: 2px dashed #ccc !important;
+        page-break-inside: avoid;
+    }
+    
+    .header {
+        page-break-after: avoid;
+    }
+    
+    .event-info {
+        page-break-after: avoid;
+    }
+}
