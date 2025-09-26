@@ -52,6 +52,25 @@ router.get('/:eventId/:inviteId', async (req, res) => {
             specialInstructions: eventId === 'demo-event-123'
                 ? 'Please let us know about any dietary restrictions or allergies. We\'ll have a variety of food options available!'
                 : 'Please let us know about any dietary restrictions or allergies.',
+            
+            // Enhanced configuration options
+            displayOptions: {
+                showDietaryRestrictions: true, // Default true for demo
+                showDressCode: false,
+                showHostMessage: false
+            },
+            dressCode: '',
+            hostMessage: '',
+            eventCategory: 'General',
+            eventTags: [],
+            
+            // Event management
+            status: 'active',
+            reminderSettings: {
+                enabled: false,
+                daysBefore: 7
+            },
+            
             image: eventId === 'demo-event-123' ? {
                 id: 'demo-image-123',
                 filename: 'demo-birthday-party.jpg',
@@ -303,6 +322,8 @@ router.get('/:eventId/:inviteId', async (req, res) => {
                     ${eventData.description ? `<p><strong>Description:</strong> ${eventData.description}</p>` : ''}
                     ${eventData.rsvpDeadline ? `<p><strong>RSVP Deadline:</strong> ${eventData.rsvpDeadline}</p>` : ''}
                     ${eventData.specialInstructions ? `<p><strong>Special Instructions:</strong> ${eventData.specialInstructions}</p>` : ''}
+                    ${eventData.displayOptions?.showDressCode && eventData.dressCode ? `<p><strong>Dress Code:</strong> ${eventData.dressCode}</p>` : ''}
+                    ${eventData.displayOptions?.showHostMessage && eventData.hostMessage ? `<p><strong>Host Message:</strong> ${eventData.hostMessage}</p>` : ''}
                 </div>
                     
                     <form id="rsvpForm">
@@ -343,6 +364,7 @@ router.get('/:eventId/:inviteId', async (req, res) => {
                             <input type="number" id="guestCount" name="guestCount" min="1" max="10" value="1">
                         </div>
                         
+                        ${eventData.displayOptions?.showDietaryRestrictions !== false ? `
                         <div class="form-group">
                             <label for="dietaryRestrictions">Dietary Restrictions or Allergies</label>
                             ${eventData.dietaryOptions && eventData.dietaryOptions.length > 0 ? `
@@ -358,6 +380,7 @@ router.get('/:eventId/:inviteId', async (req, res) => {
                             ` : ''}
                             <textarea id="dietaryRestrictions" name="dietaryRestrictions" rows="3" placeholder="Please let us know about any dietary restrictions or allergies..."></textarea>
                         </div>
+                        ` : ''}
                         
                         <div class="form-group">
                             <label for="message">Message to Host (Optional)</label>
