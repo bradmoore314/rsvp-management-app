@@ -1,0 +1,56 @@
+#!/bin/bash
+
+echo "🔑 GitHub Authentication Helper"
+echo "==============================="
+echo ""
+
+echo "Since we can't install GitHub CLI without sudo, let's use a personal access token:"
+echo ""
+
+echo "📋 Step 1: Create Personal Access Token"
+echo "1. Go to: https://github.com/settings/tokens"
+echo "2. Click 'Generate new token' → 'Generate new token (classic)'"
+echo "3. Note: 'RSVP App Deployment'"
+echo "4. Expiration: 90 days"
+echo "5. Select scopes: Check 'repo'"
+echo "6. Click 'Generate token'"
+echo "7. Copy the token (starts with 'ghp_')"
+echo ""
+
+echo "📤 Step 2: Push Your Code"
+echo "Run this command:"
+echo "git push -u origin main"
+echo ""
+
+echo "🔐 When prompted:"
+echo "- Username: bradmoore314"
+echo "- Password: [paste your token here]"
+echo ""
+
+echo "🌐 Step 3: Deploy to Render"
+echo "After pushing to GitHub:"
+echo "1. Go to: https://render.com/"
+echo "2. Sign up with GitHub"
+echo "3. Click 'New +' → 'Web Service'"
+echo "4. Connect repository: bradmoore314/rsvp-management-app"
+echo "5. Configure:"
+echo "   - Build Command: npm install"
+echo "   - Start Command: npm start"
+echo "   - Environment: Node"
+echo ""
+
+echo "⚙️ Step 4: Set Environment Variables"
+echo "In Render dashboard, add:"
+echo "GOOGLE_CLIENT_ID=your_google_client_id"
+echo "GOOGLE_CLIENT_SECRET=your_google_client_secret"
+echo "GOOGLE_REDIRECT_URI=https://your-app.onrender.com/auth/google/callback"
+echo "APP_URL=https://your-app.onrender.com"
+echo "NODE_ENV=production"
+echo "PORT=10000"
+echo ""
+
+echo "🎉 Result: Your app will be live and web-based!"
+echo "QR codes will work from anywhere in the world!"
+echo ""
+
+read -p "Press Enter when you have your GitHub token ready..."

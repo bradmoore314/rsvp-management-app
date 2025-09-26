@@ -73,6 +73,8 @@ jspm_packages/
 
 # Google OAuth tokens (keep these local)
 google-oauth-tokens.json
+tokens.json
+setup-google-sheets.js
 
 # Temporary files
 *.tmp
