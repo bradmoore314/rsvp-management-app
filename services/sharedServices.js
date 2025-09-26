@@ -11,7 +11,7 @@ const sharedEventService = new EventService();
 const sharedGoogleDriveService = new GoogleDriveService();
 const sharedGoogleSheetsService = new GoogleSheetsService(sharedGoogleDriveService);
 const sharedRSVPService = new RSVPService();
-const sharedInviteService = new InviteService();
+const sharedInviteService = new InviteService(sharedGoogleDriveService);
 const sharedQRCodeService = new QRCodeService();
 
 // Initialize all services
@@ -19,9 +19,8 @@ const sharedQRCodeService = new QRCodeService();
     try {
         await sharedEventService.initialize();
         await sharedRSVPService.initialize();
-        await sharedInviteService.initialize();
         
-        // Initialize Google Drive service
+        // Initialize Google Drive service first
         try {
             await sharedGoogleDriveService.initialize();
             // Try to load saved tokens for Google Drive
@@ -35,6 +34,9 @@ const sharedQRCodeService = new QRCodeService();
         } catch (error) {
             console.log('ℹ️ Google Drive service initialization skipped:', error.message);
         }
+        
+        // Initialize InviteService after Google Drive (so it can load invites from Drive)
+        await sharedInviteService.initialize();
         
         // Initialize Google Sheets service
         try {

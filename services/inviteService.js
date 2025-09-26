@@ -4,10 +4,11 @@ const RSVPService = require('./rsvpService');
 const { v4: uuidv4 } = require('uuid');
 
 class InviteService {
-    constructor() {
+    constructor(googleDriveService = null) {
         this.qrCodeService = new QRCodeService();
         this.eventService = new EventService();
         this.rsvpService = new RSVPService();
+        this.googleDrive = googleDriveService;
         this.invites = new Map(); // In-memory cache for invites
     }
 
@@ -17,6 +18,11 @@ class InviteService {
     async initialize() {
         await this.eventService.initialize();
         await this.rsvpService.initialize();
+        
+        // Load invites from Google Drive if available
+        if (this.googleDrive && this.googleDrive.isReady()) {
+            await this.loadInvitesFromDrive();
+        }
     }
 
     /**
@@ -60,6 +66,9 @@ class InviteService {
 
             // Store invite in memory
             this.invites.set(inviteId, invite);
+
+            // Store invite in Google Drive
+            await this.storeInviteInDrive(invite);
 
             console.log(`✅ Generated invite: ${inviteId} for event ${eventId}`);
             return {
@@ -312,6 +321,113 @@ class InviteService {
             isValid: errors.length === 0,
             errors: errors
         };
+    }
+
+    /**
+     * Store invite in Google Drive
+     */
+    async storeInviteInDrive(invite) {
+        if (!this.googleDrive || !this.googleDrive.isReady()) {
+            console.log('⚠️ Google Drive not available, skipping invite storage');
+            return;
+        }
+
+        try {
+            // Find or create RSVP-Invites folder
+            const invitesFolder = await this.googleDrive.findFolder('RSVP-Invites');
+            if (!invitesFolder) {
+                console.log('📁 Creating RSVP-Invites folder...');
+                await this.googleDrive.createFolder('RSVP-Invites');
+                const newInvitesFolder = await this.googleDrive.findFolder('RSVP-Invites');
+                if (!newInvitesFolder) {
+                    throw new Error('Failed to create RSVP-Invites folder');
+                }
+            }
+
+            const fileName = `invite-${invite.id}.json`;
+            const content = JSON.stringify(invite, null, 2);
+
+            // Check if file already exists
+            const existingFiles = await this.googleDrive.listFiles(invitesFolder.id, fileName);
+            
+            if (existingFiles.length > 0) {
+                // Update existing file
+                await this.googleDrive.updateFile(existingFiles[0].id, content);
+                console.log(`✅ Updated invite ${invite.id} in Google Drive`);
+            } else {
+                // Create new file
+                await this.googleDrive.createTextFile(fileName, content, invitesFolder.id);
+                console.log(`✅ Stored new invite ${invite.id} in Google Drive`);
+            }
+        } catch (error) {
+            console.error(`❌ Failed to store invite ${invite.id} in Google Drive:`, error.message);
+        }
+    }
+
+    /**
+     * Load all invites from Google Drive
+     */
+    async loadInvitesFromDrive() {
+        if (!this.googleDrive || !this.googleDrive.isReady()) {
+            console.log('⚠️ Google Drive not available, skipping invite loading');
+            return;
+        }
+
+        try {
+            const invitesFolder = await this.googleDrive.findFolder('RSVP-Invites');
+            if (!invitesFolder) {
+                console.log('📁 No RSVP-Invites folder found, skipping invite loading');
+                return;
+            }
+
+            const files = await this.googleDrive.listFiles(invitesFolder.id);
+            const inviteFiles = files.filter(file => file.name.startsWith('invite-') && file.name.endsWith('.json'));
+
+            console.log(`📥 Loading ${inviteFiles.length} invites from Google Drive...`);
+
+            for (const file of inviteFiles) {
+                try {
+                    const content = await this.googleDrive.downloadFile(file.id);
+                    const invite = JSON.parse(content);
+                    
+                    // Store in memory cache
+                    this.invites.set(invite.id, invite);
+                } catch (error) {
+                    console.error(`❌ Failed to load invite from file ${file.name}:`, error.message);
+                }
+            }
+
+            console.log(`✅ Loaded ${this.invites.size} invites from Google Drive`);
+        } catch (error) {
+            console.error('❌ Failed to load invites from Google Drive:', error.message);
+        }
+    }
+
+    /**
+     * Delete invite from Google Drive
+     */
+    async deleteInviteFromDrive(inviteId) {
+        if (!this.googleDrive || !this.googleDrive.isReady()) {
+            console.log('⚠️ Google Drive not available, skipping invite deletion');
+            return;
+        }
+
+        try {
+            const invitesFolder = await this.googleDrive.findFolder('RSVP-Invites');
+            if (!invitesFolder) {
+                return;
+            }
+
+            const fileName = `invite-${inviteId}.json`;
+            const files = await this.googleDrive.listFiles(invitesFolder.id, fileName);
+            
+            if (files.length > 0) {
+                await this.googleDrive.deleteFile(files[0].id);
+                console.log(`✅ Deleted invite ${inviteId} from Google Drive`);
+            }
+        } catch (error) {
+            console.error(`❌ Failed to delete invite ${inviteId} from Google Drive:`, error.message);
+        }
     }
 
     /**
