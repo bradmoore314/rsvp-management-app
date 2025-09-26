@@ -17,9 +17,6 @@ const sharedQRCodeService = new QRCodeService();
 // Initialize all services
 (async () => {
     try {
-        await sharedEventService.initialize();
-        await sharedRSVPService.initialize();
-        
         // Initialize Google Drive service first
         try {
             await sharedGoogleDriveService.initialize();
@@ -35,8 +32,10 @@ const sharedQRCodeService = new QRCodeService();
             console.log('ℹ️ Google Drive service initialization skipped:', error.message);
         }
         
-        // Initialize InviteService after Google Drive (so it can load invites from Drive)
-        await sharedInviteService.initialize();
+        // Initialize services that depend on Google Drive
+        await sharedEventService.initialize(); // Now can load events from Drive
+        await sharedRSVPService.initialize();
+        await sharedInviteService.initialize(); // Now can load invites from Drive
         
         // Initialize Google Sheets service
         try {

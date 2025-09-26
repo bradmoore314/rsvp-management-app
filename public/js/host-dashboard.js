@@ -1057,9 +1057,13 @@ class HostDashboard {
 
     async apiCall(endpoint, options = {}) {
         try {
+            // Get session ID from localStorage
+            const sessionId = localStorage.getItem('hostSessionId');
+            
             const response = await fetch(endpoint, {
                 headers: {
                     'Content-Type': 'application/json',
+                    'X-Session-ID': sessionId || '',
                     ...options.headers
                 },
                 ...options
@@ -1475,6 +1479,14 @@ class HostDashboard {
                 fetch(`/rsvp-management/responses/${eventId}`)
             ]);
             
+            // Check if responses are ok before parsing JSON
+            if (!statsResponse.ok) {
+                throw new Error(`Stats request failed: ${statsResponse.status} ${statsResponse.statusText}`);
+            }
+            if (!rsvpsResponse.ok) {
+                throw new Error(`RSVPs request failed: ${rsvpsResponse.status} ${rsvpsResponse.statusText}`);
+            }
+            
             const statsResult = await statsResponse.json();
             const rsvpsResult = await rsvpsResponse.json();
 
@@ -1872,3 +1884,21 @@ document.addEventListener('DOMContentLoaded', () => {
         dashboard.showStatus(`Authentication error: ${error}`, 'error');
     }
 });
+
+// Image preview function
+function previewImage(event) {
+    const file = event.target.files[0];
+    const preview = document.getElementById('imagePreview');
+    const previewImg = document.getElementById('previewImg');
+    
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            previewImg.src = e.target.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    } else {
+        preview.style.display = 'none';
+    }
+}
