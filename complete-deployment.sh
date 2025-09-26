@@ -1,0 +1,65 @@
+#!/bin/bash
+
+echo "🚀 RSVP App Web Deployment Helper"
+echo "=================================="
+echo ""
+
+echo "📋 Your code is ready for deployment!"
+echo ""
+
+echo "🔧 Step 1: Create GitHub Repository"
+echo "1. Go to: https://github.com/new"
+echo "2. Repository name: rsvp-management-app"
+echo "3. Make it Public"
+echo "4. Click 'Create repository'"
+echo ""
+
+echo "📤 Step 2: Push Your Code"
+echo "Run these commands:"
+echo "git remote add origin https://github.com/YOUR_USERNAME/rsvp-management-app.git"
+echo "git push -u origin main"
+echo ""
+
+echo "🌐 Step 3: Deploy to Render"
+echo "1. Go to: https://render.com/"
+echo "2. Sign up with GitHub"
+echo "3. Click 'New +' → 'Web Service'"
+echo "4. Connect your repository"
+echo "5. Configure:"
+echo "   - Build Command: npm install"
+echo "   - Start Command: npm start"
+echo "   - Environment: Node"
+echo ""
+
+echo "⚙️ Step 4: Set Environment Variables"
+echo "In Render dashboard, add:"
+echo "GOOGLE_CLIENT_ID=your_google_client_id"
+echo "GOOGLE_CLIENT_SECRET=your_google_client_secret"
+echo "GOOGLE_REDIRECT_URI=https://your-app.onrender.com/auth/google/callback"
+echo "APP_URL=https://your-app.onrender.com"
+echo "NODE_ENV=production"
+echo "PORT=10000"
+echo ""
+
+echo "🔐 Step 5: Update Google OAuth"
+echo "1. Go to: https://console.cloud.google.com/apis/credentials"
+echo "2. Edit your OAuth 2.0 Client ID"
+echo "3. Add to Authorized redirect URIs:"
+echo "   https://your-app.onrender.com/auth/google/callback"
+echo "4. Add to Authorized JavaScript origins:"
+echo "   https://your-app.onrender.com"
+echo ""
+
+echo "🎉 Result: Your app will be live at https://your-app.onrender.com"
+echo "Your QR codes will work from anywhere in the world!"
+echo ""
+
+echo "📱 What changes:"
+echo "❌ Before: localhost:4000 (only your computer)"
+echo "✅ After: https://your-app.onrender.com (worldwide access)"
+echo ""
+
+echo "📖 Full guide: DEPLOY_NOW.md"
+echo ""
+
+read -p "Press Enter when you're ready to start..."
