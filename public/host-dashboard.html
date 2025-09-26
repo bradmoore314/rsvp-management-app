@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Host Dashboard - RSVP Management</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/host-dashboard.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-content">
+                <h1>🎉 Host Dashboard</h1>
+                <div class="host-info">
+                    <img id="hostAvatar" src="" alt="Host Avatar" class="host-avatar" style="display: none;">
+                    <div class="host-details">
+                        <span id="hostName">Loading...</span>
+                        <span id="hostEmail" class="host-email">Loading...</span>
+                    </div>
+                    <button id="googleSignInBtn" class="btn btn-primary" style="display: none;">Sign in with Google</button>
+                    <button id="logoutBtn" class="btn btn-secondary" style="display: none;">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="dashboard-nav">
+            <button class="nav-btn active" data-section="overview">Overview</button>
+            <button class="nav-btn" data-section="events">Events</button>
+            <button class="nav-btn" data-section="invites">Invites</button>
+            <button class="nav-btn" data-section="rsvps">RSVPs</button>
+            <button class="nav-btn" data-section="settings">Settings</button>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <!-- Overview Section -->
+            <section id="overview-section" class="dashboard-section active">
+                <h2>Dashboard Overview</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Total Events</h3>
+                        <div class="stat-number" id="totalEvents">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Active Events</h3>
+                        <div class="stat-number" id="activeEvents">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Invites</h3>
+                        <div class="stat-number" id="totalInvites">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total RSVPs</h3>
+                        <div class="stat-number" id="totalRSVPs">0</div>
+                    </div>
+                </div>
+                
+                <div class="recent-activity">
+                    <h3>Recent Activity</h3>
+                    <div id="recentActivity" class="activity-list">
+                        <p>Loading recent activity...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Events Section -->
+            <section id="events-section" class="dashboard-section">
+                <div class="section-header">
+                    <h2>Event Management</h2>
+                    <button id="createEventBtn" class="btn btn-primary">Create New Event</button>
+                </div>
+                
+                <div class="events-list" id="eventsList">
+                    <p>Loading events...</p>
+                </div>
+            </section>
+
+            <!-- Invites Section -->
+            <section id="invites-section" class="dashboard-section">
+                <div class="section-header">
+                    <h2>Invite Management</h2>
+                    <div class="invite-actions">
+                        <button id="generateInvitesBtn" class="btn btn-primary">Generate Invites</button>
+                        <button id="exportInvitesBtn" class="btn btn-secondary">Export Data</button>
+                    </div>
+                </div>
+                
+                <div class="invites-list" id="invitesList">
+                    <p>Select an event to view invites...</p>
+                </div>
+            </section>
+
+            <!-- RSVPs Section -->
+            <section id="rsvps-section" class="dashboard-section">
+                <div class="section-header">
+                    <h2>RSVP Management</h2>
+                    <div class="rsvp-actions">
+                        <button id="exportRSVPsBtn" class="btn btn-secondary">Export RSVPs</button>
+                        <button id="refreshRSVPsBtn" class="btn btn-secondary">Refresh</button>
+                    </div>
+                </div>
+                
+                <div class="rsvp-stats" id="rsvpStats">
+                    <p>Select an event to view RSVP statistics...</p>
+                </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section id="settings-section" class="dashboard-section">
+                <h2>Account Settings</h2>
+                <div class="settings-form">
+                    <div class="form-group">
+                        <label for="hostNameInput">Display Name</label>
+                        <input type="text" id="hostNameInput" placeholder="Your display name">
+                    </div>
+                    <div class="form-group">
+                        <label for="hostEmailInput">Email Address</label>
+                        <input type="email" id="hostEmailInput" placeholder="your@email.com" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="timezoneSelect">Timezone</label>
+                        <select id="timezoneSelect">
+                            <option value="UTC">UTC</option>
+                            <option value="America/New_York">Eastern Time</option>
+                            <option value="America/Chicago">Central Time</option>
+                            <option value="America/Denver">Mountain Time</option>
+                            <option value="America/Los_Angeles">Pacific Time</option>
+                        </select>
+                    </div>
+                    <button id="saveSettingsBtn" class="btn btn-primary">Save Settings</button>
+                </div>
+            </section>
+        </main>
+
+        <!-- Status Messages -->
+        <div id="statusMessage" class="status-message"></div>
+    </div>
+
+    <!-- Event Creation Modal -->
+    <div id="eventModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create New Event</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="eventForm" class="modal-body">
+                <div class="form-group">
+                    <label for="eventName">Event Name *</label>
+                    <input type="text" id="eventName" required>
+                </div>
+                <div class="form-group">
+                    <label for="eventDescription">Description</label>
+                    <textarea id="eventDescription" rows="2"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="eventDate">Date *</label>
+                        <input type="date" id="eventDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="eventStartTime">Start Time *</label>
+                        <input type="time" id="eventStartTime" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="eventEndTime">End Time</label>
+                        <input type="time" id="eventEndTime">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="eventLocation">Location *</label>
+                    <input type="text" id="eventLocation" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="maxGuests">Max Guests</label>
+                        <input type="number" id="maxGuests" min="1" max="1000">
+                    </div>
+                    <div class="form-group">
+                        <label for="rsvpDeadline">RSVP Deadline</label>
+                        <input type="date" id="rsvpDeadline">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="dietaryOptions">Dietary Options (one per line)</label>
+                    <textarea id="dietaryOptions" rows="2" placeholder="Vegetarian&#10;Vegan&#10;Gluten-Free&#10;No Restrictions"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="specialInstructions">Special Instructions</label>
+                    <textarea id="specialInstructions" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="eventImage">Event Image (Optional)</label>
+                    <input type="file" id="eventImage" accept="image/*" onchange="previewImage(event)">
+                    <div id="imagePreview" class="image-preview" style="display: none;">
+                        <img id="previewImg" src="" alt="Event image preview">
+                        <button type="button" id="removeImage" class="btn btn-small btn-danger">Remove Image</button>
+                    </div>
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary modal-cancel">Cancel</button>
+                <button type="submit" form="eventForm" class="btn btn-primary">Create Event</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/host-dashboard.js"></script>
+</body>
+</html>

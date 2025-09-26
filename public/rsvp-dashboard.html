@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RSVP Dashboard - Event Management</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/host-dashboard.css">
+    <link rel="stylesheet" href="css/rsvp-dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="rsvp-dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-content">
+                <div class="header-left">
+                    <button id="backBtn" class="btn btn-secondary">← Back to Event</button>
+                    <h1>📊 RSVP Dashboard</h1>
+                </div>
+                <div class="header-right">
+                    <button id="exportDataBtn" class="btn btn-primary">Export Data</button>
+                    <button id="refreshBtn" class="btn btn-secondary">Refresh</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Event Info Banner -->
+        <div class="event-banner">
+            <div class="event-info">
+                <h2 id="eventName">Event Name</h2>
+                <p id="eventDate">Date and Time</p>
+                <p id="eventLocation">📍 Location</p>
+            </div>
+            <div class="event-status">
+                <span class="status-badge" id="eventStatus">Active</span>
+            </div>
+        </div>
+
+        <!-- Summary Stats -->
+        <div class="summary-stats">
+            <div class="stat-card primary">
+                <div class="stat-icon">📧</div>
+                <div class="stat-content">
+                    <div class="stat-number" id="totalInvites">0</div>
+                    <div class="stat-label">Total Invites</div>
+                </div>
+            </div>
+            <div class="stat-card success">
+                <div class="stat-icon">✅</div>
+                <div class="stat-content">
+                    <div class="stat-number" id="totalResponses">0</div>
+                    <div class="stat-label">Responses</div>
+                </div>
+            </div>
+            <div class="stat-card info">
+                <div class="stat-icon">📊</div>
+                <div class="stat-content">
+                    <div class="stat-number" id="responseRate">0%</div>
+                    <div class="stat-label">Response Rate</div>
+                </div>
+            </div>
+            <div class="stat-card warning">
+                <div class="stat-icon">🎉</div>
+                <div class="stat-content">
+                    <div class="stat-number" id="attending">0</div>
+                    <div class="stat-label">Attending</div>
+                </div>
+            </div>
+            <div class="stat-card danger">
+                <div class="stat-icon">❌</div>
+                <div class="stat-content">
+                    <div class="stat-number" id="notAttending">0</div>
+                    <div class="stat-label">Not Attending</div>
+                </div>
+            </div>
+            <div class="stat-card secondary">
+                <div class="stat-icon">👥</div>
+                <div class="stat-content">
+                    <div class="stat-number" id="totalGuests">0</div>
+                    <div class="stat-label">Total Guests</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Tabs -->
+        <div class="dashboard-tabs">
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="overview">Overview</button>
+                <button class="tab-btn" data-tab="responses">Responses</button>
+                <button class="tab-btn" data-tab="analytics">Analytics</button>
+                <button class="tab-btn" data-tab="trends">Trends</button>
+                <button class="tab-btn" data-tab="dietary">Dietary</button>
+            </div>
+
+            <!-- Overview Tab -->
+            <div id="overview-tab" class="tab-content active">
+                <div class="overview-grid">
+                    <div class="overview-card">
+                        <h3>Quick Insights</h3>
+                        <div class="insights-list" id="quickInsights">
+                            <div class="insight-item">
+                                <span class="insight-label">Average Response Time:</span>
+                                <span class="insight-value" id="avgResponseTime">-</span>
+                            </div>
+                            <div class="insight-item">
+                                <span class="insight-label">Peak Response Day:</span>
+                                <span class="insight-value" id="peakResponseDay">-</span>
+                            </div>
+                            <div class="insight-item">
+                                <span class="insight-label">Peak Response Hour:</span>
+                                <span class="insight-value" id="peakResponseHour">-</span>
+                            </div>
+                            <div class="insight-item">
+                                <span class="insight-label">Average Guests per Response:</span>
+                                <span class="insight-value" id="avgGuestsPerResponse">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="overview-card">
+                        <h3>Response Distribution</h3>
+                        <div class="chart-container">
+                            <canvas id="responseChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="overview-card">
+                        <h3>Guest Count Distribution</h3>
+                        <div class="chart-container">
+                            <canvas id="guestCountChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="overview-card">
+                        <h3>Recent Responses</h3>
+                        <div class="recent-responses" id="recentResponses">
+                            <p>Loading recent responses...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Responses Tab -->
+            <div id="responses-tab" class="tab-content">
+                <div class="responses-header">
+                    <h3>RSVP Responses</h3>
+                    <div class="response-actions">
+                        <div class="search-box">
+                            <input type="text" id="searchInput" placeholder="Search responses...">
+                        </div>
+                        <select id="attendanceFilter">
+                            <option value="all">All Responses</option>
+                            <option value="yes">Attending</option>
+                            <option value="no">Not Attending</option>
+                            <option value="maybe">Maybe</option>
+                        </select>
+                        <select id="sortBy">
+                            <option value="submittedAt">Sort by Date</option>
+                            <option value="name">Sort by Name</option>
+                            <option value="attendance">Sort by Attendance</option>
+                            <option value="guestCount">Sort by Guest Count</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="responses-list" id="responsesList">
+                    <p>Loading responses...</p>
+                </div>
+            </div>
+
+            <!-- Analytics Tab -->
+            <div id="analytics-tab" class="tab-content">
+                <div class="analytics-grid">
+                    <div class="analytics-card">
+                        <h3>Response Timeline</h3>
+                        <div class="chart-container">
+                            <canvas id="timelineChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="analytics-card">
+                        <h3>Response Milestones</h3>
+                        <div class="milestones-list" id="milestonesList">
+                            <p>Loading milestones...</p>
+                        </div>
+                    </div>
+
+                    <div class="analytics-card">
+                        <h3>Response Patterns</h3>
+                        <div class="patterns-grid" id="patternsGrid">
+                            <div class="pattern-item">
+                                <span class="pattern-label">25% Responses:</span>
+                                <span class="pattern-value" id="milestone25">-</span>
+                            </div>
+                            <div class="pattern-item">
+                                <span class="pattern-label">50% Responses:</span>
+                                <span class="pattern-value" id="milestone50">-</span>
+                            </div>
+                            <div class="pattern-item">
+                                <span class="pattern-label">75% Responses:</span>
+                                <span class="pattern-value" id="milestone75">-</span>
+                            </div>
+                            <div class="pattern-item">
+                                <span class="pattern-label">100% Responses:</span>
+                                <span class="pattern-value" id="milestone100">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trends Tab -->
+            <div id="trends-tab" class="tab-content">
+                <div class="trends-grid">
+                    <div class="trends-card">
+                        <h3>Daily Response Trends</h3>
+                        <div class="chart-container">
+                            <canvas id="dailyTrendsChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="trends-card">
+                        <h3>Response Rate Over Time</h3>
+                        <div class="chart-container">
+                            <canvas id="responseRateChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dietary Tab -->
+            <div id="dietary-tab" class="tab-content">
+                <div class="dietary-grid">
+                    <div class="dietary-card">
+                        <h3>Dietary Preferences</h3>
+                        <div class="chart-container">
+                            <canvas id="dietaryChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="dietary-card">
+                        <h3>Dietary Statistics</h3>
+                        <div class="dietary-stats" id="dietaryStats">
+                            <div class="dietary-stat-item">
+                                <span class="stat-label">With Dietary Preferences:</span>
+                                <span class="stat-value" id="withDietary">0</span>
+                            </div>
+                            <div class="dietary-stat-item">
+                                <span class="stat-label">Without Dietary Preferences:</span>
+                                <span class="stat-value" id="withoutDietary">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dietary-card">
+                        <h3>Common Combinations</h3>
+                        <div class="combinations-list" id="combinationsList">
+                            <p>Loading combinations...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Messages -->
+        <div id="statusMessage" class="status-message"></div>
+    </div>
+
+    <!-- Export Modal -->
+    <div id="exportModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Export RSVP Data</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="exportForm" class="modal-body">
+                <div class="form-group">
+                    <label for="exportFormat">Export Format</label>
+                    <select id="exportFormat">
+                        <option value="csv">CSV (Excel Compatible)</option>
+                        <option value="json">JSON</option>
+                        <option value="excel">Excel</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="includeSummary" checked>
+                        Include Event Summary
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="includeAnalytics" checked>
+                        Include Analytics Data
+                    </label>
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary modal-cancel">Cancel</button>
+                <button type="submit" form="exportForm" class="btn btn-primary">Export Data</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/rsvp-dashboard.js"></script>
+</body>
+</html>
+
+
+
+
