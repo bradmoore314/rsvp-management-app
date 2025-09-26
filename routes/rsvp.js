@@ -322,8 +322,8 @@ router.get('/:eventId/:inviteId', async (req, res) => {
                     ${eventData.description ? `<p><strong>Description:</strong> ${eventData.description}</p>` : ''}
                     ${eventData.rsvpDeadline ? `<p><strong>RSVP Deadline:</strong> ${eventData.rsvpDeadline}</p>` : ''}
                     ${eventData.specialInstructions ? `<p><strong>Special Instructions:</strong> ${eventData.specialInstructions}</p>` : ''}
-                    ${eventData.displayOptions?.showDressCode && eventData.dressCode ? `<p><strong>Dress Code:</strong> ${eventData.dressCode}</p>` : ''}
-                    ${eventData.displayOptions?.showHostMessage && eventData.hostMessage ? `<p><strong>Host Message:</strong> ${eventData.hostMessage}</p>` : ''}
+                    ${eventData.displayOptions?.showDressCode === true && eventData.dressCode ? `<p><strong>Dress Code:</strong> ${eventData.dressCode}</p>` : ''}
+                    ${eventData.displayOptions?.showHostMessage === true && eventData.hostMessage ? `<p><strong>Host Message:</strong> ${eventData.hostMessage}</p>` : ''}
                 </div>
                     
                     <form id="rsvpForm">
@@ -364,7 +364,7 @@ router.get('/:eventId/:inviteId', async (req, res) => {
                             <input type="number" id="guestCount" name="guestCount" min="1" max="10" value="1">
                         </div>
                         
-                        ${eventData.displayOptions?.showDietaryRestrictions !== false ? `
+                        ${eventData.displayOptions?.showDietaryRestrictions === true ? `
                         <div class="form-group">
                             <label for="dietaryRestrictions">Dietary Restrictions or Allergies</label>
                             ${eventData.dietaryOptions && eventData.dietaryOptions.length > 0 ? `

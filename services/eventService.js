@@ -104,9 +104,9 @@ class EventService {
                     
                     // Enhanced configuration options
                     displayOptions: {
-                        showDietaryRestrictions: eventData.showDietaryRestrictions !== false, // Default true
-                        showDressCode: eventData.showDressCode || false,
-                        showHostMessage: eventData.showHostMessage || false
+                        showDietaryRestrictions: eventData.showDietaryRestrictions === true,
+                        showDressCode: eventData.showDressCode === true,
+                        showHostMessage: eventData.showHostMessage === true
                     },
                     dressCode: eventData.dressCode || '',
                     hostMessage: eventData.hostMessage || '',

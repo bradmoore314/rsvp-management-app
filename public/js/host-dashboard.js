@@ -523,9 +523,9 @@ class HostDashboard {
         document.getElementById('editSpecialInstructions').value = event.specialInstructions || '';
         
         // Display options
-        document.getElementById('editShowDietaryRestrictions').checked = event.displayOptions?.showDietaryRestrictions !== false;
-        document.getElementById('editShowDressCode').checked = event.displayOptions?.showDressCode || false;
-        document.getElementById('editShowHostMessage').checked = event.displayOptions?.showHostMessage || false;
+        document.getElementById('editShowDietaryRestrictions').checked = event.displayOptions?.showDietaryRestrictions === true;
+        document.getElementById('editShowDressCode').checked = event.displayOptions?.showDressCode === true;
+        document.getElementById('editShowHostMessage').checked = event.displayOptions?.showHostMessage === true;
         document.getElementById('editDressCode').value = event.dressCode || '';
         document.getElementById('editHostMessage').value = event.hostMessage || '';
         
@@ -535,9 +535,9 @@ class HostDashboard {
         document.getElementById('editReminderDays').value = event.reminderSettings?.daysBefore || 7;
         
         // Show/hide conditional fields
-        document.getElementById('editDressCodeGroup').style.display = event.displayOptions?.showDressCode ? 'block' : 'none';
-        document.getElementById('editHostMessageGroup').style.display = event.displayOptions?.showHostMessage ? 'block' : 'none';
-        document.getElementById('editReminderDaysGroup').style.display = event.reminderSettings?.enabled ? 'block' : 'none';
+        document.getElementById('editDressCodeGroup').style.display = event.displayOptions?.showDressCode === true ? 'block' : 'none';
+        document.getElementById('editHostMessageGroup').style.display = event.displayOptions?.showHostMessage === true ? 'block' : 'none';
+        document.getElementById('editReminderDaysGroup').style.display = event.reminderSettings?.enabled === true ? 'block' : 'none';
 
         document.getElementById('eventEditModal').style.display = 'block';
     }
