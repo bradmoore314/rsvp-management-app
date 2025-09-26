@@ -279,6 +279,97 @@ class GoogleDriveService {
     }
 
     /**
+     * Find a folder by name
+     */
+    async findFolder(folderName, parentId = null) {
+        try {
+            if (!this.isReady()) {
+                throw new Error('Google Drive service not ready');
+            }
+
+            const query = `name='${folderName}' and mimeType='application/vnd.google-apps.folder' and trashed=false`;
+            const parentQuery = parentId ? ` and '${parentId}' in parents` : '';
+            
+            const response = await this.drive.files.list({
+                q: query + parentQuery,
+                fields: 'files(id, name, parents)'
+            });
+
+            return response.data.files.length > 0 ? response.data.files[0] : null;
+        } catch (error) {
+            console.error(`❌ Failed to find folder ${folderName}:`, error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Update file content
+     */
+    async updateFile(fileId, content) {
+        try {
+            if (!this.isReady()) {
+                throw new Error('Google Drive service not ready');
+            }
+
+            await this.drive.files.update({
+                fileId: fileId,
+                media: {
+                    mimeType: 'text/plain',
+                    body: content
+                }
+            });
+
+            console.log(`✅ Updated file ${fileId}`);
+        } catch (error) {
+            console.error(`❌ Failed to update file ${fileId}:`, error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Delete a file
+     */
+    async deleteFile(fileId) {
+        try {
+            if (!this.isReady()) {
+                throw new Error('Google Drive service not ready');
+            }
+
+            await this.drive.files.delete({
+                fileId: fileId
+            });
+
+            console.log(`✅ Deleted file ${fileId}`);
+        } catch (error) {
+            console.error(`❌ Failed to delete file ${fileId}:`, error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Download file content as text
+     */
+    async downloadFile(fileId) {
+        try {
+            if (!this.isReady()) {
+                throw new Error('Google Drive service not ready');
+            }
+
+            const response = await this.drive.files.get({
+                fileId: fileId,
+                alt: 'media'
+            }, {
+                responseType: 'text'
+            });
+
+            return response.data;
+        } catch (error) {
+            console.error(`❌ Failed to download file ${fileId}:`, error.message);
+            throw error;
+        }
+    }
+
+    /**
      * Check if service is properly initialized and authenticated
      */
     isReady() {

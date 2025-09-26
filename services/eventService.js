@@ -18,6 +18,67 @@ class EventService {
         if (savedTokens) {
             await this.googleDrive.setCredentialsFromTokens(savedTokens);
         }
+
+        // Load saved events from Google Drive
+        await this.loadEventsFromDrive();
+    }
+
+    /**
+     * Load all saved events from Google Drive
+     */
+    async loadEventsFromDrive() {
+        try {
+            if (!this.googleDrive.isReady()) {
+                console.log('ℹ️ Google Drive not authenticated, skipping event loading');
+                return;
+            }
+
+            console.log('📂 Loading saved events from Google Drive...');
+            
+            // Look for the events folder
+            const eventsFolderName = 'RSVP-Events';
+            const eventsFolder = await this.googleDrive.findFolder(eventsFolderName);
+            
+            if (!eventsFolder) {
+                console.log('ℹ️ No events folder found, starting fresh');
+                return;
+            }
+
+            // Get all files in the events folder
+            const files = await this.googleDrive.listFiles(eventsFolder.id);
+            
+            if (!files || files.length === 0) {
+                console.log('ℹ️ No event files found in events folder');
+                return;
+            }
+
+            let loadedCount = 0;
+            for (const file of files) {
+                try {
+                    // Skip non-JSON files
+                    if (!file.name.endsWith('.json')) {
+                        continue;
+                    }
+
+                    // Download and parse the event file
+                    const eventData = await this.googleDrive.downloadFile(file.id);
+                    const event = JSON.parse(eventData);
+                    
+                    // Validate the event data
+                    if (event.id && event.name && event.date) {
+                        this.events.set(event.id, event);
+                        loadedCount++;
+                        console.log(`✅ Loaded event: ${event.name} (${event.id})`);
+                    }
+                } catch (error) {
+                    console.error(`❌ Failed to load event file ${file.name}:`, error.message);
+                }
+            }
+
+            console.log(`📂 Successfully loaded ${loadedCount} events from Google Drive`);
+        } catch (error) {
+            console.error('❌ Failed to load events from Google Drive:', error.message);
+        }
     }
 
     /**
@@ -260,6 +321,30 @@ class EventService {
     }
 
     /**
+     * Delete an event
+     */
+    async deleteEvent(eventId) {
+        try {
+            const event = this.events.get(eventId);
+            if (!event) {
+                throw new Error(`Event not found: ${eventId}`);
+            }
+
+            // Remove from memory
+            this.events.delete(eventId);
+
+            // Delete from Google Drive
+            await this.deleteEventFromDrive(eventId);
+
+            console.log(`✅ Deleted event: ${event.name} (ID: ${eventId})`);
+            return true;
+        } catch (error) {
+            console.error('❌ Failed to delete event:', error.message);
+            throw error;
+        }
+    }
+
+    /**
      * Store event in Google Drive
      */
     async storeEventInDrive(event) {
@@ -274,24 +359,32 @@ class EventService {
             let eventsFolder;
             
             try {
-                eventsFolder = await this.googleDrive.createFolder(eventsFolderName);
-            } catch (error) {
-                // Folder might already exist, try to find it
-                const files = await this.googleDrive.listFiles(null, eventsFolderName);
-                const existingFolder = files.find(file => file.name === eventsFolderName);
-                if (existingFolder) {
-                    eventsFolder = existingFolder;
-                } else {
-                    throw error;
+                eventsFolder = await this.googleDrive.findFolder(eventsFolderName);
+                if (!eventsFolder) {
+                    eventsFolder = await this.googleDrive.createFolder(eventsFolderName);
+                    console.log(`📁 Created events folder: ${eventsFolderName}`);
                 }
+            } catch (error) {
+                console.error(`❌ Failed to create/find events folder:`, error.message);
+                throw error;
             }
 
-            // Create event file
+            // Check if event file already exists
             const fileName = `event-${event.id}.json`;
+            const existingFiles = await this.googleDrive.listFiles(eventsFolder.id, fileName);
+            
             const content = JSON.stringify(event, null, 2);
-
-            await this.googleDrive.createTextFile(fileName, content, eventsFolder.id);
-            console.log(`✅ Stored event ${event.id} in Google Drive`);
+            
+            if (existingFiles.length > 0) {
+                // Update existing file
+                const existingFile = existingFiles[0];
+                await this.googleDrive.updateFile(existingFile.id, content);
+                console.log(`✅ Updated event ${event.id} in Google Drive`);
+            } else {
+                // Create new file
+                await this.googleDrive.createTextFile(fileName, content, eventsFolder.id);
+                console.log(`✅ Stored new event ${event.id} in Google Drive`);
+            }
         } catch (error) {
             console.error(`❌ Failed to store event in Google Drive:`, error.message);
             throw error;
@@ -308,21 +401,22 @@ class EventService {
             }
 
             const eventsFolderName = 'RSVP-Events';
-            const files = await this.googleDrive.listFiles(null, eventsFolderName);
-            const eventsFolder = files.find(file => file.name === eventsFolderName);
+            const eventsFolder = await this.googleDrive.findFolder(eventsFolderName);
             
             if (!eventsFolder) {
                 return null;
             }
 
-            const eventFiles = await this.googleDrive.listFiles(eventsFolder.id, `event-${eventId}`);
+            const fileName = `event-${eventId}.json`;
+            const eventFiles = await this.googleDrive.listFiles(eventsFolder.id, fileName);
+            
             if (eventFiles.length === 0) {
                 return null;
             }
 
             // Read the event file content
             const eventFile = eventFiles[0];
-            const fileContent = await this.googleDrive.getFileContent(eventFile.id);
+            const fileContent = await this.googleDrive.downloadFile(eventFile.id);
             
             if (fileContent) {
                 const eventData = JSON.parse(fileContent);
@@ -333,6 +427,40 @@ class EventService {
         } catch (error) {
             console.error(`❌ Failed to load event from Google Drive:`, error.message);
             return null;
+        }
+    }
+
+    /**
+     * Delete event from Google Drive
+     */
+    async deleteEventFromDrive(eventId) {
+        try {
+            if (!this.googleDrive.isReady()) {
+                console.log('ℹ️ Google Drive not authenticated, cannot delete from Drive');
+                return;
+            }
+
+            const eventsFolderName = 'RSVP-Events';
+            const eventsFolder = await this.googleDrive.findFolder(eventsFolderName);
+            
+            if (!eventsFolder) {
+                console.log('ℹ️ Events folder not found, nothing to delete');
+                return;
+            }
+
+            const fileName = `event-${eventId}.json`;
+            const eventFiles = await this.googleDrive.listFiles(eventsFolder.id, fileName);
+            
+            if (eventFiles.length > 0) {
+                const eventFile = eventFiles[0];
+                await this.googleDrive.deleteFile(eventFile.id);
+                console.log(`✅ Deleted event ${eventId} from Google Drive`);
+            } else {
+                console.log(`ℹ️ Event file ${fileName} not found in Google Drive`);
+            }
+        } catch (error) {
+            console.error(`❌ Failed to delete event from Google Drive:`, error.message);
+            throw error;
         }
     }
 
