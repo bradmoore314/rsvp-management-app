@@ -254,9 +254,12 @@ class HostDashboard {
             document.getElementById('totalEvents').textContent = this.events.length;
             document.getElementById('activeEvents').textContent = this.events.filter(e => e.status === 'active').length;
 
-            // Calculate total invites and RSVPs
+            // Calculate comprehensive stats
             let totalInvites = 0;
             let totalRSVPs = 0;
+            let totalGuests = 0;
+            let attendingCount = 0;
+            let upcomingEvents = 0;
 
             for (const event of this.events) {
                 try {
@@ -264,14 +267,39 @@ class HostDashboard {
                     totalInvites += invitesResponse.count || 0;
 
                     const rsvpResponse = await this.apiCall(`/rsvp-management/stats/${event.id}`);
-                    totalRSVPs += rsvpResponse.data?.totalResponses || 0;
+                    const eventRSVPs = rsvpResponse.data?.totalResponses || 0;
+                    totalRSVPs += eventRSVPs;
+                    
+                    // Calculate total guests (including +1s)
+                    const eventGuests = rsvpResponse.data?.totalGuests || 0;
+                    totalGuests += eventGuests;
+                    
+                    // Calculate attending count
+                    const eventAttending = rsvpResponse.data?.attendingCount || 0;
+                    attendingCount += eventAttending;
+                    
+                    // Check for upcoming events (next 7 days)
+                    const eventDate = new Date(event.date);
+                    const today = new Date();
+                    const daysDiff = (eventDate - today) / (1000 * 60 * 60 * 24);
+                    if (daysDiff >= 0 && daysDiff <= 7) {
+                        upcomingEvents++;
+                    }
                 } catch (error) {
                     console.error(`Failed to load data for event ${event.id}:`, error);
                 }
             }
 
+            // Calculate response rate
+            const responseRate = totalInvites > 0 ? Math.round((totalRSVPs / totalInvites) * 100) : 0;
+
+            // Update all stats
             document.getElementById('totalInvites').textContent = totalInvites;
             document.getElementById('totalRSVPs').textContent = totalRSVPs;
+            document.getElementById('totalGuests').textContent = totalGuests;
+            document.getElementById('responseRate').textContent = responseRate + '%';
+            document.getElementById('attendingCount').textContent = attendingCount;
+            document.getElementById('upcomingEvents').textContent = upcomingEvents;
         } catch (error) {
             console.error('Failed to load overview stats:', error);
         }
@@ -426,7 +454,39 @@ class HostDashboard {
     loadSettings() {
         document.getElementById('hostNameInput').value = this.host.name || '';
         document.getElementById('hostEmailInput').value = this.host.email || '';
-        // Add timezone and other settings as needed
+        
+        // Load email notification settings
+        const notificationEmail = localStorage.getItem('notificationEmail') || 'moore.brad.m@gmail.com';
+        const emailNotificationsEnabled = localStorage.getItem('emailNotificationsEnabled') !== 'false';
+        
+        document.getElementById('notificationEmail').value = notificationEmail;
+        document.getElementById('emailNotificationsEnabled').checked = emailNotificationsEnabled;
+        
+        // Add event listener for save settings
+        document.getElementById('saveSettingsBtn').onclick = () => this.saveSettings();
+    }
+
+    async saveSettings() {
+        try {
+            const settings = {
+                hostName: document.getElementById('hostNameInput').value,
+                notificationEmail: document.getElementById('notificationEmail').value,
+                emailNotificationsEnabled: document.getElementById('emailNotificationsEnabled').checked
+            };
+
+            // Save to localStorage
+            localStorage.setItem('notificationEmail', settings.notificationEmail);
+            localStorage.setItem('emailNotificationsEnabled', settings.emailNotificationsEnabled);
+
+            // Update host info
+            this.host.name = settings.hostName;
+            this.updateHostInfo();
+
+            this.showStatus('Settings saved successfully!', 'success');
+        } catch (error) {
+            console.error('Failed to save settings:', error);
+            this.showStatus('Failed to save settings', 'error');
+        }
     }
 
     showEventModal() {

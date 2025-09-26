@@ -1,11 +1,13 @@
 const GoogleDriveService = require('./googleDrive');
 const GoogleSheetsService = require('./googleSheetsService');
+const EmailService = require('./emailService');
 const { v4: uuidv4 } = require('uuid');
 
 class RSVPService {
     constructor() {
         this.googleDrive = new GoogleDriveService();
         this.googleSheets = new GoogleSheetsService();
+        this.emailService = new EmailService();
         this.rsvpResponses = new Map(); // In-memory cache for RSVP responses
         this.eventSpreadsheets = new Map(); // Cache for event spreadsheet IDs
     }
@@ -26,6 +28,9 @@ class RSVPService {
         if (this.googleDrive.isReady()) {
             await this.googleSheets.initialize(this.googleDrive);
         }
+        
+        // Initialize email service
+        await this.emailService.initialize();
     }
 
     /**
@@ -71,6 +76,13 @@ class RSVPService {
                 } catch (error) {
                     console.log('ℹ️ Could not store RSVP in Google Sheets, storing in memory only:', error.message);
                 }
+            }
+
+            // Send email notification
+            try {
+                await this.sendRSVPNotification(rsvpResponse);
+            } catch (error) {
+                console.log('ℹ️ Could not send email notification:', error.message);
             }
 
             console.log(`✅ RSVP submitted: ${rsvpResponse.guestName} for event ${rsvpResponse.eventId}`);
@@ -395,6 +407,67 @@ class RSVPService {
         });
 
         return csvRows.join('\n');
+    }
+
+    /**
+     * Send RSVP notification email
+     */
+    async sendRSVPNotification(rsvpResponse) {
+        try {
+            // Get event data
+            const eventData = await this.getEventData(rsvpResponse.eventId);
+            if (!eventData) {
+                console.log('⚠️ Could not find event data for notification');
+                return;
+            }
+
+            // Get notification email from settings (default to moore.brad.m@gmail.com)
+            const notificationEmail = process.env.NOTIFICATION_EMAIL || 'moore.brad.m@gmail.com';
+            
+            // Send email notification
+            const emailSent = await this.emailService.sendRSVPNotification(
+                rsvpResponse, 
+                eventData, 
+                notificationEmail
+            );
+
+            if (emailSent) {
+                console.log(`📧 RSVP notification sent to ${notificationEmail}`);
+            } else {
+                console.log('⚠️ Failed to send RSVP notification email');
+            }
+        } catch (error) {
+            console.error('❌ Error sending RSVP notification:', error.message);
+        }
+    }
+
+    /**
+     * Get event data for notifications
+     */
+    async getEventData(eventId) {
+        try {
+            // Try to get from event service if available
+            const EventService = require('./eventService');
+            const eventService = new EventService();
+            await eventService.initialize();
+            
+            const event = await eventService.getEvent(eventId);
+            if (event) {
+                return event;
+            }
+
+            // Fallback: create basic event data
+            return {
+                id: eventId,
+                name: 'Event',
+                date: new Date().toISOString(),
+                time: 'TBD',
+                location: 'TBD'
+            };
+        } catch (error) {
+            console.error('❌ Error getting event data:', error.message);
+            return null;
+        }
     }
 
     /**

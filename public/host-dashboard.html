@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Host Dashboard - RSVP Management</title>
+    <title>Yes or No Invites - Event Management Dashboard</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/host-dashboard.css">
 </head>
@@ -12,7 +12,7 @@
         <!-- Header -->
         <header class="dashboard-header">
             <div class="header-content">
-                <h1>🎉 Host Dashboard</h1>
+                <h1 class="app-brand">✨ Yes or No Invites</h1>
                 <div class="host-info">
                     <img id="hostAvatar" src="" alt="Host Avatar" class="host-avatar" style="display: none;">
                     <div class="host-details">
@@ -38,23 +38,77 @@
         <main class="dashboard-main">
             <!-- Overview Section -->
             <section id="overview-section" class="dashboard-section active">
-                <h2>Dashboard Overview</h2>
-                <div class="stats-grid">
+                <h2 class="section-title">📊 Event Analytics Dashboard</h2>
+                
+                <!-- Primary Stats Row -->
+                <div class="stats-grid primary-stats">
+                    <div class="stat-card featured">
+                        <div class="stat-icon">🎉</div>
+                        <div class="stat-content">
+                            <h3>Total Events</h3>
+                            <div class="stat-number" id="totalEvents">0</div>
+                            <div class="stat-subtitle">All time</div>
+                        </div>
+                    </div>
+                    <div class="stat-card featured">
+                        <div class="stat-icon">⚡</div>
+                        <div class="stat-content">
+                            <h3>Active Events</h3>
+                            <div class="stat-number" id="activeEvents">0</div>
+                            <div class="stat-subtitle">Currently running</div>
+                        </div>
+                    </div>
+                    <div class="stat-card featured">
+                        <div class="stat-icon">📨</div>
+                        <div class="stat-content">
+                            <h3>Total Invites</h3>
+                            <div class="stat-number" id="totalInvites">0</div>
+                            <div class="stat-subtitle">Sent out</div>
+                        </div>
+                    </div>
+                    <div class="stat-card featured">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-content">
+                            <h3>Total RSVPs</h3>
+                            <div class="stat-number" id="totalRSVPs">0</div>
+                            <div class="stat-subtitle">Responses received</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Secondary Stats Row -->
+                <div class="stats-grid secondary-stats">
                     <div class="stat-card">
-                        <h3>Total Events</h3>
-                        <div class="stat-number" id="totalEvents">0</div>
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-content">
+                            <h3>Total Guests</h3>
+                            <div class="stat-number" id="totalGuests">0</div>
+                            <div class="stat-subtitle">Including +1s</div>
+                        </div>
                     </div>
                     <div class="stat-card">
-                        <h3>Active Events</h3>
-                        <div class="stat-number" id="activeEvents">0</div>
+                        <div class="stat-icon">📈</div>
+                        <div class="stat-content">
+                            <h3>Response Rate</h3>
+                            <div class="stat-number" id="responseRate">0%</div>
+                            <div class="stat-subtitle">RSVP efficiency</div>
+                        </div>
                     </div>
                     <div class="stat-card">
-                        <h3>Total Invites</h3>
-                        <div class="stat-number" id="totalInvites">0</div>
+                        <div class="stat-icon">🎯</div>
+                        <div class="stat-content">
+                            <h3>Attending</h3>
+                            <div class="stat-number" id="attendingCount">0</div>
+                            <div class="stat-subtitle">Confirmed guests</div>
+                        </div>
                     </div>
                     <div class="stat-card">
-                        <h3>Total RSVPs</h3>
-                        <div class="stat-number" id="totalRSVPs">0</div>
+                        <div class="stat-icon">⏰</div>
+                        <div class="stat-content">
+                            <h3>Upcoming</h3>
+                            <div class="stat-number" id="upcomingEvents">0</div>
+                            <div class="stat-subtitle">Next 7 days</div>
+                        </div>
                     </div>
                 </div>
                 
@@ -129,6 +183,22 @@
                             <option value="America/Denver">Mountain Time</option>
                             <option value="America/Los_Angeles">Pacific Time</option>
                         </select>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h3>📧 Email Notifications</h3>
+                        <div class="form-group">
+                            <label for="notificationEmail">RSVP Notification Email</label>
+                            <input type="email" id="notificationEmail" placeholder="moore.brad.m@gmail.com" value="moore.brad.m@gmail.com">
+                            <small>You'll receive an email whenever someone RSVPs to your events</small>
+                        </div>
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="emailNotificationsEnabled" checked>
+                                <span class="checkmark"></span>
+                                Enable email notifications
+                            </label>
+                        </div>
                     </div>
                     <button id="saveSettingsBtn" class="btn btn-primary">Save Settings</button>
                 </div>
