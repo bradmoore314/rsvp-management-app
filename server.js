@@ -24,6 +24,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 app.use('/images', express.static('uploads/images'));
+app.use('/images/qr-codes', express.static('public/images/qr-codes'));
 
 // Routes
 app.get('/', (req, res) => {

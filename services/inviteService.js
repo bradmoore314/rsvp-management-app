@@ -61,8 +61,17 @@ class InviteService {
                 process.env.APP_URL || 'http://localhost:3000'
             );
 
+            // Generate QR code file for printing/viewing
+            const qrCodeFile = await this.qrCodeService.generateQRCodeFile(
+                inviteId,
+                eventId,
+                null,
+                process.env.APP_URL || 'http://localhost:3000'
+            );
+
             invite.qrCode = qrCodeData.qrCodeDataURL;
             invite.rsvpUrl = qrCodeData.rsvpUrl;
+            invite.qrCodeFile = qrCodeFile;
 
             // Store invite in memory
             this.invites.set(inviteId, invite);

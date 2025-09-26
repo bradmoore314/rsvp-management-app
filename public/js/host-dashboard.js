@@ -421,6 +421,7 @@ class HostDashboard {
                     <div class="event-actions">
                         <button class="btn btn-primary" onclick="dashboard.viewEvent('${event.id}')">View Details</button>
                         <button class="btn btn-secondary" onclick="dashboard.generateInvitesForEvent('${event.id}')">Generate Invites</button>
+                        <button class="btn btn-secondary" onclick="dashboard.viewQRCodes('${event.id}')">View QR Codes</button>
                         <button class="btn btn-secondary" onclick="dashboard.printQRCodes('${event.id}')">Print QR Codes</button>
                         <button class="btn btn-secondary" onclick="dashboard.viewRSVPs('${event.id}')">View RSVPs</button>
                         <button class="btn btn-secondary" onclick="dashboard.showEventEditModal('${event.id}')">Edit Event</button>
@@ -796,6 +797,80 @@ class HostDashboard {
         }
     }
 
+    async viewQRCodes(eventId) {
+        try {
+            const event = this.events.find(e => e.id === eventId);
+            if (!event) {
+                this.showStatus('Event not found', 'error');
+                return;
+            }
+
+            this.showStatus('Loading QR codes...', 'info');
+
+            // Get all invites for this event
+            const response = await this.apiCall(`/invites/event/${eventId}`);
+            
+            if (!response.success || !response.data || response.data.length === 0) {
+                this.showStatus('No QR codes found for this event. Generate invites first.', 'error');
+                return;
+            }
+
+            // Create modal to display QR codes
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'block';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 90vw; max-height: 90vh; overflow-y: auto;">
+                    <div class="modal-header">
+                        <h2>📱 QR Codes - ${event.name}</h2>
+                        <span class="close" onclick="this.closest('.modal').remove()">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <div class="event-info" style="background: #f7fafc; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                            <h3>Event Details</h3>
+                            <p><strong>Date:</strong> ${new Date(event.date).toLocaleDateString()}</p>
+                            <p><strong>Time:</strong> ${event.time}${event.endTime ? ` - ${event.endTime}` : ''}</p>
+                            <p><strong>Location:</strong> ${event.location}</p>
+                            <p><strong>Host:</strong> ${event.hostName}</p>
+                        </div>
+                        
+                        <div class="qr-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                            ${response.data.map((invite, index) => `
+                                <div class="qr-card" style="border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; text-align: center; background: white;">
+                                    <div class="qr-code" style="margin-bottom: 15px;">
+                                        <img src="${invite.qrCodeFile?.webPath || invite.qrCode}" 
+                                             alt="QR Code" 
+                                             style="max-width: 150px; height: auto; border-radius: 8px;"
+                                             onerror="this.src='${invite.qrCode}'">
+                                    </div>
+                                    <div class="invite-info">
+                                        <h4 style="margin: 0 0 8px 0; color: #2d3748;">Invite #${index + 1}</h4>
+                                        <p style="margin: 0 0 8px 0; color: #718096; font-size: 14px;">Scan to RSVP</p>
+                                        ${invite.guestName ? `<p style="margin: 0; color: #4a5568; font-weight: 500;"><strong>Guest:</strong> ${invite.guestName}</p>` : ''}
+                                        <p style="margin: 8px 0 0 0; color: #a0aec0; font-size: 12px;">Created: ${new Date(invite.created).toLocaleDateString()}</p>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        
+                        <div style="text-align: center; margin-top: 30px; padding: 20px; background: #f7fafc; border-radius: 8px;">
+                            <p style="margin: 0 0 15px 0; color: #4a5568;"><strong>Total QR Codes: ${response.data.length}</strong></p>
+                            <button class="btn btn-primary" onclick="dashboard.printQRCodes('${eventId}'); this.closest('.modal').remove();">
+                                🖨️ Print All QR Codes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+            this.showStatus('QR codes loaded successfully!', 'success');
+        } catch (error) {
+            console.error('❌ Failed to view QR codes:', error);
+            this.showStatus(`Failed to load QR codes: ${error.message}`, 'error');
+        }
+    }
+
     async printQRCodes(eventId) {
         try {
             const event = this.events.find(e => e.id === eventId);
@@ -888,14 +963,15 @@ class HostDashboard {
                     </div>
                     
                     <div class="qr-grid">
-                        ${qrCodes.map(invite => `
+                        ${qrCodes.map((invite, index) => `
                             <div class="qr-item">
                                 <div class="qr-code">
-                                    <img src="${invite.qrCodeUrl}" alt="QR Code">
+                                    <img src="${invite.qrCodeFile?.webPath || invite.qrCode}" alt="QR Code" onerror="this.src='${invite.qrCode}'">
                                 </div>
                                 <div class="invite-info">
-                                    <p><strong>Invite #${invite.inviteNumber}</strong></p>
+                                    <p><strong>Invite #${index + 1}</strong></p>
                                     <p>Scan to RSVP</p>
+                                    ${invite.guestName ? `<p><strong>Guest:</strong> ${invite.guestName}</p>` : ''}
                                 </div>
                             </div>
                         `).join('')}
