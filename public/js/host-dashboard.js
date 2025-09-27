@@ -17,10 +17,15 @@ class HostDashboard {
         // Check if we have a session ID in localStorage
         this.sessionId = localStorage.getItem('hostSessionId');
         
-        // Show sign-in button if no session
+        // If no session, use default host (no need to show sign-in for now)
         if (!this.sessionId) {
-            console.log('No session found, showing sign-in option');
-            this.showSignInButton();
+            console.log('No session found, using default host');
+            this.host = {
+                name: 'Event Host',
+                email: 'host@example.com'
+            };
+            this.updateHostInfo();
+            await this.loadDashboardData();
             return;
         }
 
@@ -37,6 +42,7 @@ class HostDashboard {
                 await this.loadDashboardData();
             } else {
                 // Fallback to default host
+                console.log('Session validation failed, using default host');
                 this.host = {
                     name: 'Event Host',
                     email: 'host@example.com'
@@ -45,7 +51,7 @@ class HostDashboard {
                 await this.loadDashboardData();
             }
         } catch (error) {
-            console.error('Authentication check failed:', error);
+            console.log('Authentication check failed, using default host:', error.message);
             // Fallback to default host
             this.host = {
                 name: 'Event Host',
@@ -205,13 +211,6 @@ class HostDashboard {
         document.getElementById('googleSignInBtn').style.display = 'none';
     }
 
-    showSignInButton() {
-        document.getElementById('hostName').textContent = 'Please sign in';
-        document.getElementById('hostEmail').textContent = 'to access your dashboard';
-        document.getElementById('googleSignInBtn').style.display = 'block';
-        document.getElementById('logoutBtn').style.display = 'none';
-        document.getElementById('hostAvatar').style.display = 'none';
-    }
 
     async googleSignIn() {
         try {
