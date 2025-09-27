@@ -1682,9 +1682,171 @@ class HostDashboard {
                 return;
             }
 
-            // Redirect to RSVP Dashboard with the event ID
-            window.location.href = `/rsvp-dashboard?eventId=${eventId}`;
-            return;
+            this.showStatus('Loading RSVP data...', 'info');
+
+            // Fetch RSVP stats and responses
+            const [statsResult, rsvpsResult] = await Promise.all([
+                this.apiCall(`/rsvp-management/stats/${eventId}`),
+                this.apiCall(`/rsvp-management/responses/${eventId}`)
+            ]);
+
+            // Create modal to display RSVP data
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'block';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 1000px; max-height: 90vh; overflow-y: auto;">
+                    <div class="modal-header">
+                        <h3>📊 RSVP Responses for "${event.name}"</h3>
+                        <button class="modal-close">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        ${statsResult.success ? `
+                            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+                                <div style="background: #f0fff4; padding: 16px; border-radius: 8px; text-align: center; border: 1px solid #9ae6b4;">
+                                    <div style="font-size: 1.5rem; font-weight: 600; color: #22543d;">${statsResult.data?.attending || 0}</div>
+                                    <div style="font-size: 0.875rem; color: #22543d;">Attending</div>
+                                </div>
+                                <div style="background: #fed7d7; padding: 16px; border-radius: 8px; text-align: center; border: 1px solid #feb2b2;">
+                                    <div style="font-size: 1.5rem; font-weight: 600; color: #742a2a;">${statsResult.data?.notAttending || 0}</div>
+                                    <div style="font-size: 0.875rem; color: #742a2a;">Not Attending</div>
+                                </div>
+                                <div style="background: #ebf8ff; padding: 16px; border-radius: 8px; text-align: center; border: 1px solid #90cdf4;">
+                                    <div style="font-size: 1.5rem; font-weight: 600; color: #2a4365;">${statsResult.data?.maybe || 0}</div>
+                                    <div style="font-size: 0.875rem; color: #2a4365;">Maybe</div>
+                                </div>
+                                <div style="background: #f7fafc; padding: 16px; border-radius: 8px; text-align: center; border: 1px solid #e2e8f0;">
+                                    <div style="font-size: 1.5rem; font-weight: 600; color: #4a5568;">${statsResult.data?.totalResponses || 0}</div>
+                                    <div style="font-size: 0.875rem; color: #4a5568;">Total Responses</div>
+                                </div>
+                            </div>
+                            <div style="background: #f7fafc; padding: 16px; border-radius: 8px; margin-bottom: 20px;">
+                                <p style="margin: 0; font-size: 0.875rem; color: #4a5568;">
+                                    <strong>Total Guests:</strong> ${statsResult.data?.totalGuests || 0} | 
+                                    <strong>Response Rate:</strong> ${statsResult.data?.responseRate || 0}%
+                                </p>
+                            </div>
+                        ` : `
+                            <div style="text-align: center; padding: 40px; color: #718096;">
+                                <div style="font-size: 2rem; margin-bottom: 16px;">📊</div>
+                                <h3 style="margin: 0 0 8px 0; color: #2d3748;">No RSVP data yet</h3>
+                                <p style="margin: 0;">Generate invites and share them with guests to start collecting RSVP responses.</p>
+                            </div>
+                        `}
+                        
+                        ${rsvpsResult.success && rsvpsResult.data && rsvpsResult.data.length > 0 ? `
+                            <div style="margin-top: 24px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                                    <h4 style="margin: 0;">Guest Responses</h4>
+                                    <div style="display: flex; gap: 12px; align-items: center;">
+                                        <input type="text" id="guestSearch" placeholder="Search guests..." style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.875rem;">
+                                        <select id="attendanceFilter" style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.875rem;">
+                                            <option value="">All Responses</option>
+                                            <option value="yes">Attending</option>
+                                            <option value="no">Not Attending</option>
+                                            <option value="maybe">Maybe</option>
+                                        </select>
+                                        <button class="btn btn-secondary" onclick="dashboard.exportGuestList('${eventId}')">Export</button>
+                                    </div>
+                                </div>
+                                <div id="guestList" style="max-height: 400px; overflow-y: auto;">
+                                    ${rsvpsResult.data.map(rsvp => `
+                                        <div class="guest-card" data-attendance="${rsvp.attendance}" data-name="${rsvp.guestName.toLowerCase()}" data-email="${rsvp.guestEmail.toLowerCase()}" style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 12px;">
+                                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                                                <div>
+                                                    <h5 style="margin: 0 0 4px 0; font-size: 1rem; color: #2d3748;">${rsvp.guestName}</h5>
+                                                    <p style="margin: 0; font-size: 0.875rem; color: #718096;">${rsvp.guestEmail}</p>
+                                                </div>
+                                                <span class="attendance-badge ${rsvp.attendance}" style="padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; background: ${rsvp.attendance === 'yes' ? '#9ae6b4' : rsvp.attendance === 'no' ? '#feb2b2' : '#90cdf4'}; color: ${rsvp.attendance === 'yes' ? '#22543d' : rsvp.attendance === 'no' ? '#742a2a' : '#2a4365'};">
+                                                    ${rsvp.attendance === 'yes' ? 'Attending' : rsvp.attendance === 'no' ? 'Not Attending' : 'Maybe'}
+                                                </span>
+                                            </div>
+                                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.875rem; color: #4a5568;">
+                                                <div>
+                                                    <strong>Guests:</strong> ${rsvp.guestCount || 1}
+                                                </div>
+                                                <div>
+                                                    <strong>Submitted:</strong> ${new Date(rsvp.submittedAt).toLocaleDateString()}
+                                                </div>
+                                                ${rsvp.guestPhone ? `
+                                                <div>
+                                                    <strong>Phone:</strong> ${rsvp.guestPhone}
+                                                </div>
+                                                ` : ''}
+                                                ${rsvp.emergencyContact ? `
+                                                <div>
+                                                    <strong>Emergency Contact:</strong> ${rsvp.emergencyContact}
+                                                </div>
+                                                ` : ''}
+                                            </div>
+                                            ${rsvp.dietaryRestrictions ? `
+                                            <div style="margin-top: 8px; font-size: 0.875rem;">
+                                                <strong>Dietary Restrictions:</strong> ${rsvp.dietaryRestrictions}
+                                            </div>
+                                            ` : ''}
+                                            ${rsvp.message ? `
+                                            <div style="margin-top: 8px; font-size: 0.875rem; color: #4a5568; font-style: italic;">
+                                                "${rsvp.message}"
+                                            </div>
+                                            ` : ''}
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary modal-cancel">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="dashboard.generateInvitesForSpecificEvent('${eventId}')">Generate Invites</button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+
+            // Add event listeners
+            modal.querySelector('.modal-close').addEventListener('click', () => {
+                document.body.removeChild(modal);
+            });
+
+            modal.querySelector('.modal-cancel').addEventListener('click', () => {
+                document.body.removeChild(modal);
+            });
+
+            // Close modal when clicking outside
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    document.body.removeChild(modal);
+                }
+            });
+
+            // Add search and filter functionality
+            if (rsvpsResult.success && rsvpsResult.data && rsvpsResult.data.length > 0) {
+                const searchInput = modal.querySelector('#guestSearch');
+                const filterSelect = modal.querySelector('#attendanceFilter');
+                const guestCards = modal.querySelectorAll('.guest-card');
+
+                const filterGuests = () => {
+                    const searchTerm = searchInput.value.toLowerCase();
+                    const filterValue = filterSelect.value;
+
+                    guestCards.forEach(card => {
+                        const name = card.dataset.name;
+                        const email = card.dataset.email;
+                        const attendance = card.dataset.attendance;
+
+                        const matchesSearch = !searchTerm || name.includes(searchTerm) || email.includes(searchTerm);
+                        const matchesFilter = !filterValue || attendance === filterValue;
+
+                        card.style.display = matchesSearch && matchesFilter ? 'block' : 'none';
+                    });
+                };
+
+                searchInput.addEventListener('input', filterGuests);
+                filterSelect.addEventListener('change', filterGuests);
+            }
+
+            this.showStatus('RSVP data loaded successfully', 'success');
         } catch (error) {
             console.error('Error showing event RSVPs:', error);
             this.showStatus('Error loading RSVP data', 'error');
