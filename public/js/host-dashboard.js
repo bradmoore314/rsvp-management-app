@@ -335,18 +335,53 @@ class HostDashboard {
             const eventsList = document.getElementById('eventsList');
             eventsList.innerHTML = '<p>Loading events...</p>';
 
-            // Always use simplified mode for now since session validation is failing
+            // Try multiple approaches to load events
             let response;
+            let events = [];
+            
             try {
-                // Try to load events for the current host
+                // First, try to load events for the current host
+                console.log(`🔍 Loading events for host: ${this.host.email}`);
                 response = await this.apiCall(`/events/host/${this.host.email}`);
+                events = response.data || [];
+                console.log(`📊 Found ${events.length} events for host ${this.host.email}`);
             } catch (error) {
-                console.log('Failed to load events with host email, trying default:', error);
-                // Fallback to default host
-                response = await this.apiCall(`/events/host/host@example.com`);
+                console.log('Failed to load events with current host email, trying default:', error);
             }
             
-            this.events = response.data || [];
+            // If no events found with current host, try default host
+            if (events.length === 0) {
+                try {
+                    console.log('🔍 Trying default host email: host@example.com');
+                    response = await this.apiCall(`/events/host/host@example.com`);
+                    events = response.data || [];
+                    console.log(`📊 Found ${events.length} events for default host`);
+                } catch (error) {
+                    console.log('Failed to load events with default host:', error);
+                }
+            }
+            
+            // If still no events, try to get all events (for debugging)
+            if (events.length === 0) {
+                try {
+                    console.log('🔍 Trying to get all events (debug mode)');
+                    response = await this.apiCall(`/events`);
+                    const allEvents = response.data || [];
+                    console.log(`📊 Found ${allEvents.length} total events in system`);
+                    
+                    // Filter events that might belong to this host
+                    events = allEvents.filter(event => 
+                        event.hostEmail === this.host.email || 
+                        event.hostEmail === 'host@example.com' ||
+                        !event.hostEmail // Events without hostEmail
+                    );
+                    console.log(`📊 Filtered to ${events.length} relevant events`);
+                } catch (error) {
+                    console.log('Failed to load all events:', error);
+                }
+            }
+            
+            this.events = events;
 
             if (this.events.length === 0) {
                 eventsList.innerHTML = `

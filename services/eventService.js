@@ -242,6 +242,22 @@ class EventService {
     }
 
     /**
+     * Get all events (for debugging)
+     */
+    async getAllEvents() {
+        try {
+            const events = Array.from(this.events.values())
+                .sort((a, b) => new Date(b.created) - new Date(a.created));
+
+            console.log(`📊 Returning ${events.length} total events from memory`);
+            return events;
+        } catch (error) {
+            console.error(`❌ Failed to get all events:`, error.message);
+            return [];
+        }
+    }
+
+    /**
      * Duplicate an existing event
      */
     async duplicateEvent(eventId, newEventData = {}) {

@@ -133,6 +133,30 @@ router.get('/host/:hostEmail', async (req, res) => {
 });
 
 /**
+ * GET /events
+ * Get all events (for debugging)
+ */
+router.get('/', async (req, res) => {
+    try {
+        const events = await eventService.getAllEvents();
+        
+        res.json({
+            success: true,
+            data: events,
+            count: events.length,
+            message: `Found ${events.length} total events`
+        });
+    } catch (error) {
+        console.error('Error getting all events:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to get all events',
+            message: error.message
+        });
+    }
+});
+
+/**
  * GET /events/:eventId/stats
  * Get event statistics
  */
