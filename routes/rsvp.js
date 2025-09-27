@@ -408,21 +408,37 @@ router.get('/:eventId/:inviteId', async (req, res) => {
                         const dietaryOptions = Array.from(document.querySelectorAll('input[name="dietaryOptions"]:checked'))
                             .map(checkbox => checkbox.value);
                         
-                        // Collect form data
+                        // Helper function to safely get form element value
+                        function getFormValue(elementId) {
+                            const element = document.getElementById(elementId);
+                            return element ? element.value : '';
+                        }
+                        
+                        // Collect form data with null checks
                         const formData = {
                             eventId: '${eventId}',
                             inviteId: '${inviteId}',
-                            guestName: document.getElementById('guestName').value,
-                            guestEmail: document.getElementById('guestEmail').value,
-                            guestPhone: document.getElementById('guestPhone').value,
-                            emergencyContact: document.getElementById('emergencyContact').value,
-                            attendance: document.getElementById('attendance').value,
-                            guestCount: parseInt(document.getElementById('guestCount').value),
+                            guestName: getFormValue('guestName'),
+                            guestEmail: getFormValue('guestEmail'),
+                            guestPhone: getFormValue('guestPhone'),
+                            emergencyContact: getFormValue('emergencyContact'),
+                            attendance: getFormValue('attendance'),
+                            guestCount: parseInt(getFormValue('guestCount')) || 1,
                             dietaryOptions: dietaryOptions,
-                            dietaryRestrictions: document.getElementById('dietaryRestrictions').value,
-                            message: document.getElementById('message').value,
+                            dietaryRestrictions: getFormValue('dietaryRestrictions'),
+                            message: getFormValue('message'),
                             timestamp: new Date().toISOString()
                         };
+                        
+                        // Validate required fields
+                        if (!formData.guestName || !formData.guestEmail || !formData.attendance) {
+                            statusMessage.textContent = '❌ Please fill in all required fields (Name, Email, and Attendance).';
+                            statusMessage.className = 'status-message error';
+                            statusMessage.style.display = 'block';
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = 'Submit RSVP';
+                            return;
+                        }
                         
                         try {
                             const response = await fetch('/api/rsvp/submit', {
