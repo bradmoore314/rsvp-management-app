@@ -556,54 +556,68 @@ class HostDashboard {
         try {
             console.log('🎉 Starting event creation...');
             
+            // Get form elements with null checks
+            const eventNameEl = document.getElementById('eventName');
+            const eventDateEl = document.getElementById('eventDate');
+            const eventTimeEl = document.getElementById('eventStartTime');
+            const eventLocationEl = document.getElementById('eventLocation');
+            const eventImageEl = document.getElementById('eventImage');
+            
+            // Check if required elements exist
+            if (!eventNameEl || !eventDateEl || !eventTimeEl || !eventLocationEl) {
+                console.error('❌ Required form elements not found');
+                this.showStatus('Form elements not found. Please refresh the page and try again.', 'error');
+                return;
+            }
+            
             // Validate required fields
-            const eventName = document.getElementById('eventName').value;
-            const eventDate = document.getElementById('eventDate').value;
-            const eventTime = document.getElementById('eventStartTime').value;
-            const eventLocation = document.getElementById('eventLocation').value;
+            const eventName = eventNameEl.value;
+            const eventDate = eventDateEl.value;
+            const eventTime = eventTimeEl.value;
+            const eventLocation = eventLocationEl.value;
             
             if (!eventName || !eventDate || !eventTime || !eventLocation) {
                 this.showStatus('Please fill in all required fields (Name, Date, Time, Location)', 'error');
                 return;
             }
             
-            const eventImageFile = document.getElementById('eventImage').files[0];
+            const eventImageFile = eventImageEl ? eventImageEl.files[0] : null;
             
             // Create FormData for file upload
             const formData = new FormData();
             
-            // Add event data
+            // Add event data with null checks
             formData.append('name', eventName);
-            formData.append('description', document.getElementById('eventDescription').value || '');
+            formData.append('description', this.getFormValue('eventDescription') || '');
             formData.append('date', eventDate);
             formData.append('time', eventTime);
-            formData.append('endTime', document.getElementById('eventEndTime').value || '');
+            formData.append('endTime', this.getFormValue('eventEndTime') || '');
             formData.append('location', eventLocation);
-            formData.append('maxGuests', document.getElementById('maxGuests').value ? parseInt(document.getElementById('maxGuests').value) : '');
-            formData.append('rsvpDeadline', document.getElementById('rsvpDeadline').value || '');
+            formData.append('maxGuests', this.getFormValue('maxGuests') ? parseInt(this.getFormValue('maxGuests')) : '');
+            formData.append('rsvpDeadline', this.getFormValue('rsvpDeadline') || '');
             
             // Enhanced configuration options
-            formData.append('eventCategory', document.getElementById('eventCategory').value || 'General');
-            formData.append('eventTags', document.getElementById('eventTags').value || '');
+            formData.append('eventCategory', this.getFormValue('eventCategory') || 'General');
+            formData.append('eventTags', this.getFormValue('eventTags') || '');
             
             // Display options
-            formData.append('showDietaryRestrictions', document.getElementById('showDietaryRestrictions').checked);
-            formData.append('showDressCode', document.getElementById('showDressCode').checked);
-            formData.append('showHostMessage', document.getElementById('showHostMessage').checked);
-            formData.append('dressCode', document.getElementById('dressCode').value || '');
-            formData.append('hostMessage', document.getElementById('hostMessage').value || '');
+            formData.append('showDietaryRestrictions', this.getFormChecked('showDietaryRestrictions'));
+            formData.append('showDressCode', this.getFormChecked('showDressCode'));
+            formData.append('showHostMessage', this.getFormChecked('showHostMessage'));
+            formData.append('dressCode', this.getFormValue('dressCode') || '');
+            formData.append('hostMessage', this.getFormValue('hostMessage') || '');
             
             // Event management
-            formData.append('status', document.getElementById('eventStatus').value || 'active');
-            formData.append('reminderEnabled', document.getElementById('reminderEnabled').checked);
-            formData.append('reminderDays', document.getElementById('reminderDays').value || '7');
+            formData.append('status', this.getFormValue('eventStatus') || 'active');
+            formData.append('reminderEnabled', this.getFormChecked('reminderEnabled'));
+            formData.append('reminderDays', this.getFormValue('reminderDays') || '7');
             
             // Handle dietary options
-            const dietaryText = document.getElementById('dietaryOptions').value;
+            const dietaryText = this.getFormValue('dietaryOptions');
             const dietaryOptions = dietaryText ? dietaryText.split('\n').filter(option => option.trim()) : ['No Restrictions'];
             formData.append('dietaryOptions', JSON.stringify(dietaryOptions));
             
-            formData.append('specialInstructions', document.getElementById('specialInstructions').value || '');
+            formData.append('specialInstructions', this.getFormValue('specialInstructions') || '');
             formData.append('hostName', this.host.name || 'Event Host');
             formData.append('hostEmail', this.host.email || 'host@example.com');
             formData.append('initialInviteCount', '0');
@@ -1219,6 +1233,17 @@ class HostDashboard {
                 document.body.removeChild(modal);
             }
         });
+    }
+
+    // Helper methods for safe form element access
+    getFormValue(elementId) {
+        const element = document.getElementById(elementId);
+        return element ? element.value : '';
+    }
+    
+    getFormChecked(elementId) {
+        const element = document.getElementById(elementId);
+        return element ? element.checked : false;
     }
 
     printQRCodes(invites) {
