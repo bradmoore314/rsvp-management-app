@@ -1266,6 +1266,7 @@ class HostDashboard {
                     </div>
                 </div>
                 <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="printQRCodes">Print QR Codes</button>
                     <button type="button" class="btn btn-secondary modal-cancel">Close</button>
                 </div>
             </div>
@@ -1282,12 +1283,204 @@ class HostDashboard {
             document.body.removeChild(modal);
         });
 
+        // Add print functionality
+        modal.querySelector('#printQRCodes').addEventListener('click', () => {
+            this.printQRCodes(invites);
+        });
+
         // Close modal when clicking outside
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
                 document.body.removeChild(modal);
             }
         });
+    }
+
+    printQRCodes(invites) {
+        // Create a new window for printing
+        const printWindow = window.open('', '_blank', 'width=800,height=600');
+        
+        // Create print-optimized HTML content
+        const printContent = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>QR Codes for Printing</title>
+                <style>
+                    @media print {
+                        @page {
+                            margin: 0.5in;
+                            size: letter;
+                        }
+                        body {
+                            font-family: Arial, sans-serif;
+                            font-size: 12pt;
+                            line-height: 1.4;
+                            color: #000;
+                            background: white;
+                        }
+                        .qr-container {
+                            display: flex;
+                            flex-wrap: wrap;
+                            gap: 20px;
+                            justify-content: center;
+                            align-items: flex-start;
+                        }
+                        .qr-item {
+                            border: 2px solid #000;
+                            padding: 15px;
+                            text-align: center;
+                            width: 200px;
+                            page-break-inside: avoid;
+                            margin-bottom: 20px;
+                        }
+                        .qr-code {
+                            width: 150px;
+                            height: 150px;
+                            border: 1px solid #ccc;
+                            margin: 0 auto 10px auto;
+                            display: block;
+                        }
+                        .qr-label {
+                            font-weight: bold;
+                            margin-bottom: 5px;
+                            font-size: 14pt;
+                        }
+                        .qr-id {
+                            font-size: 10pt;
+                            color: #666;
+                            word-break: break-all;
+                            margin-bottom: 5px;
+                        }
+                        .qr-url {
+                            font-size: 9pt;
+                            color: #333;
+                            word-break: break-all;
+                        }
+                        .header {
+                            text-align: center;
+                            margin-bottom: 30px;
+                            border-bottom: 2px solid #000;
+                            padding-bottom: 15px;
+                        }
+                        .header h1 {
+                            margin: 0;
+                            font-size: 18pt;
+                        }
+                        .header p {
+                            margin: 5px 0 0 0;
+                            font-size: 12pt;
+                        }
+                    }
+                    @media screen {
+                        body {
+                            font-family: Arial, sans-serif;
+                            margin: 20px;
+                            background: #f5f5f5;
+                        }
+                        .qr-container {
+                            display: flex;
+                            flex-wrap: wrap;
+                            gap: 20px;
+                            justify-content: center;
+                            align-items: flex-start;
+                        }
+                        .qr-item {
+                            border: 2px solid #000;
+                            padding: 15px;
+                            text-align: center;
+                            width: 200px;
+                            background: white;
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                        }
+                        .qr-code {
+                            width: 150px;
+                            height: 150px;
+                            border: 1px solid #ccc;
+                            margin: 0 auto 10px auto;
+                            display: block;
+                        }
+                        .qr-label {
+                            font-weight: bold;
+                            margin-bottom: 5px;
+                        }
+                        .qr-id {
+                            font-size: 10pt;
+                            color: #666;
+                            word-break: break-all;
+                            margin-bottom: 5px;
+                        }
+                        .qr-url {
+                            font-size: 9pt;
+                            color: #333;
+                            word-break: break-all;
+                        }
+                        .header {
+                            text-align: center;
+                            margin-bottom: 30px;
+                            border-bottom: 2px solid #000;
+                            padding-bottom: 15px;
+                            background: white;
+                            padding: 20px;
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                        }
+                        .print-button {
+                            position: fixed;
+                            top: 20px;
+                            right: 20px;
+                            background: #007bff;
+                            color: white;
+                            border: none;
+                            padding: 10px 20px;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            font-size: 14px;
+                            z-index: 1000;
+                        }
+                        .print-button:hover {
+                            background: #0056b3;
+                        }
+                    }
+                </style>
+            </head>
+            <body>
+                <button class="print-button" onclick="window.print()">Print QR Codes</button>
+                
+                <div class="header">
+                    <h1>Event QR Codes</h1>
+                    <p>Generated on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}</p>
+                    <p>Total QR Codes: ${invites.length}</p>
+                </div>
+                
+                <div class="qr-container">
+                    ${invites.map((invite, index) => `
+                        <div class="qr-item">
+                            <div class="qr-label">Invite #${index + 1}</div>
+                            <img src="${invite.qrCodeDataURL}" alt="QR Code" class="qr-code">
+                            <div class="qr-id">ID: ${invite.inviteId}</div>
+                            <div class="qr-url">${invite.rsvpUrl}</div>
+                        </div>
+                    `).join('')}
+                </div>
+                
+                <script>
+                    // Auto-print when window loads
+                    window.onload = function() {
+                        setTimeout(() => {
+                            window.print();
+                        }, 500);
+                    };
+                </script>
+            </body>
+            </html>
+        `;
+        
+        // Write content to print window
+        printWindow.document.write(printContent);
+        printWindow.document.close();
+        
+        // Focus the print window
+        printWindow.focus();
     }
 
     async showEventDetails(eventId) {

@@ -14,6 +14,7 @@ const inviteRoutes = require('./routes/invites');
 const hostAuthRoutes = require('./routes/hostAuth');
 const eventManagementRoutes = require('./routes/eventManagement');
 const rsvpDashboardRoutes = require('./routes/rsvpDashboard');
+const invitationGeneratorRoutes = require('./routes/invitationGenerator');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -47,6 +48,10 @@ app.get('/oauth-callback', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'oauth-callback.html'));
 });
 
+app.get('/invitation-generator', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'invitation-generator.html'));
+});
+
 
 // API Routes
 app.use('/auth', authRoutes);
@@ -60,6 +65,7 @@ app.use('/invites', inviteRoutes);
 app.use('/host-auth', hostAuthRoutes);
 app.use('/event-management', eventManagementRoutes);
 app.use('/rsvp-dashboard', rsvpDashboardRoutes);
+app.use('/invitation-generator', invitationGeneratorRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -76,7 +82,8 @@ app.get('/health', (req, res) => {
             invites: 'Available',
             hostAuth: 'Available',
             eventManagement: 'Available',
-            rsvpDashboard: 'Available'
+            rsvpDashboard: 'Available',
+            invitationGenerator: 'Available'
         }
     });
 });

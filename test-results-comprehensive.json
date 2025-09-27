@@ -1,0 +1,64 @@
+{
+  "timestamp": "2025-09-27T08:29:45.141Z",
+  "totalTests": 11,
+  "passed": 8,
+  "failed": 3,
+  "errors": [],
+  "results": [
+    {
+      "name": "Server Health Check",
+      "status": "PASSED",
+      "details": "Server is healthy. Services: googleDrive, qrCode, rsvp, events, rsvpManagement, invites, hostAuth, eventManagement, rsvpDashboard, invitationGenerator"
+    },
+    {
+      "name": "Main Pages Accessibility",
+      "status": "PASSED",
+      "details": "All main pages accessible: Home Page, Host Dashboard, Event Details, RSVP Dashboard, AI Invitation Generator"
+    },
+    {
+      "name": "Static Assets",
+      "status": "PASSED",
+      "details": "Static assets tested: /css/style.css: OK, /css/invitation-generator.css: OK, /js/app.js: OK, /js/host-dashboard.js: OK, /js/invitation-generator.js: OK"
+    },
+    {
+      "name": "API Endpoints",
+      "status": "PASSED",
+      "details": "API endpoints tested: Get Themes: 200, Get Animations: 200, Test Gemini AI: 200, Get Events: ERROR - Request failed with status code 404, QR Code Service Health: ERROR - Request failed with status code 404"
+    },
+    {
+      "name": "AI Invitation Generator",
+      "status": "PASSED",
+      "details": "Invitation generated successfully. ID: inv_1758961785361_2mkncw59g"
+    },
+    {
+      "name": "QR Code Generation",
+      "status": "FAILED",
+      "error": "QR code test failed: Request failed with status code 400"
+    },
+    {
+      "name": "RSVP Functionality",
+      "status": "PASSED",
+      "details": "RSVP submission test completed"
+    },
+    {
+      "name": "Event Management",
+      "status": "FAILED",
+      "error": "Event management test failed: Request failed with status code 404"
+    },
+    {
+      "name": "Print QR Codes",
+      "status": "PASSED",
+      "details": "Print QR codes functionality available in host dashboard"
+    },
+    {
+      "name": "Gemini AI Integration",
+      "status": "FAILED",
+      "error": "Gemini AI test failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent: [404 Not Found] models/gemini-1.5-pro is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods."
+    },
+    {
+      "name": "File Upload",
+      "status": "PASSED",
+      "details": "File upload functionality available (FormData test simulated)"
+    }
+  ]
+}

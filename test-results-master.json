@@ -1,0 +1,186 @@
+{
+  "timestamp": "2025-09-27T08:29:45.121Z",
+  "totalSuites": 3,
+  "completedSuites": 3,
+  "totalTests": 29,
+  "totalPassed": 15,
+  "totalFailed": 14,
+  "totalErrors": 0,
+  "suiteResults": [
+    {
+      "suiteName": "Comprehensive App Tests",
+      "totalTests": 11,
+      "passed": 8,
+      "failed": 3,
+      "errors": 0,
+      "successRate": "72.7",
+      "results": [
+        {
+          "name": "Server Health Check",
+          "status": "PASSED",
+          "details": "Server is healthy. Services: googleDrive, qrCode, rsvp, events, rsvpManagement, invites, hostAuth, eventManagement, rsvpDashboard, invitationGenerator"
+        },
+        {
+          "name": "Main Pages Accessibility",
+          "status": "PASSED",
+          "details": "All main pages accessible: Home Page, Host Dashboard, Event Details, RSVP Dashboard, AI Invitation Generator"
+        },
+        {
+          "name": "Static Assets",
+          "status": "PASSED",
+          "details": "Static assets tested: /css/style.css: OK, /css/invitation-generator.css: OK, /js/app.js: OK, /js/host-dashboard.js: OK, /js/invitation-generator.js: OK"
+        },
+        {
+          "name": "API Endpoints",
+          "status": "PASSED",
+          "details": "API endpoints tested: Get Themes: 200, Get Animations: 200, Test Gemini AI: 200, Get Events: ERROR - Request failed with status code 404, QR Code Service Health: ERROR - Request failed with status code 404"
+        },
+        {
+          "name": "AI Invitation Generator",
+          "status": "PASSED",
+          "details": "Invitation generated successfully. ID: inv_1758961785361_2mkncw59g"
+        },
+        {
+          "name": "QR Code Generation",
+          "status": "FAILED",
+          "error": "QR code test failed: Request failed with status code 400"
+        },
+        {
+          "name": "RSVP Functionality",
+          "status": "PASSED",
+          "details": "RSVP submission test completed"
+        },
+        {
+          "name": "Event Management",
+          "status": "FAILED",
+          "error": "Event management test failed: Request failed with status code 404"
+        },
+        {
+          "name": "Print QR Codes",
+          "status": "PASSED",
+          "details": "Print QR codes functionality available in host dashboard"
+        },
+        {
+          "name": "Gemini AI Integration",
+          "status": "FAILED",
+          "error": "Gemini AI test failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent: [404 Not Found] models/gemini-1.5-pro is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods."
+        },
+        {
+          "name": "File Upload",
+          "status": "PASSED",
+          "details": "File upload functionality available (FormData test simulated)"
+        }
+      ]
+    },
+    {
+      "suiteName": "AI Invitation Generator Tests",
+      "totalTests": 9,
+      "passed": 6,
+      "failed": 3,
+      "errors": 0,
+      "successRate": "66.7",
+      "results": [
+        {
+          "name": "Frontend Page Accessibility",
+          "status": "PASSED",
+          "details": "Frontend page fully accessible with all required elements"
+        },
+        {
+          "name": "Themes Endpoint",
+          "status": "PASSED",
+          "details": "All 5 themes available: birthday, wedding, corporate, holiday, casual"
+        },
+        {
+          "name": "Animations Endpoint",
+          "status": "PASSED",
+          "details": "All 4 animations available: cardOpen, reveal, slideIn, particle"
+        },
+        {
+          "name": "Gemini AI Connection",
+          "status": "FAILED",
+          "error": "Gemini AI connection failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent: [404 Not Found] models/gemini-1.5-pro is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods."
+        },
+        {
+          "name": "Content Suggestions",
+          "status": "PASSED",
+          "details": "Generated 4 content suggestions"
+        },
+        {
+          "name": "Theme Variations",
+          "status": "PASSED",
+          "details": "Theme variations tested: birthday: 3 variations, wedding: 3 variations, corporate: 3 variations, holiday: 3 variations, casual: 3 variations"
+        },
+        {
+          "name": "Invitation Generation",
+          "status": "PASSED",
+          "details": "All 5 event types generated successfully"
+        },
+        {
+          "name": "Print Functionality",
+          "status": "FAILED",
+          "error": "Print functionality test failed: Request failed with status code 500"
+        },
+        {
+          "name": "RSVP Page Generation",
+          "status": "FAILED",
+          "error": "RSVP page generation test failed: Request failed with status code 500"
+        }
+      ]
+    },
+    {
+      "suiteName": "Print QR Codes Tests",
+      "totalTests": 9,
+      "passed": 1,
+      "failed": 8,
+      "errors": 0,
+      "successRate": "11.1",
+      "results": [
+        {
+          "name": "QR Code Service Health",
+          "status": "FAILED",
+          "error": "QR code service health test failed: Request failed with status code 404"
+        },
+        {
+          "name": "QR Code Generation",
+          "status": "FAILED",
+          "error": "QR code generation test failed: Request failed with status code 400"
+        },
+        {
+          "name": "QR Code Sizes",
+          "status": "FAILED",
+          "error": "Only 0/5 QR code sizes generated successfully"
+        },
+        {
+          "name": "QR Code Formats",
+          "status": "FAILED",
+          "error": "Only 0/3 QR code formats generated successfully"
+        },
+        {
+          "name": "Batch QR Code Generation",
+          "status": "FAILED",
+          "error": "Batch QR code generation test failed: Request failed with status code 400"
+        },
+        {
+          "name": "Host Dashboard Print Functionality",
+          "status": "FAILED",
+          "error": "Missing elements: Print Button, Print Function"
+        },
+        {
+          "name": "Print-Optimized Layout",
+          "status": "PASSED",
+          "details": "Print-optimized layout functionality available in host dashboard"
+        },
+        {
+          "name": "QR Code Scanning Simulation",
+          "status": "FAILED",
+          "error": "QR code scanning simulation test failed: Request failed with status code 400"
+        },
+        {
+          "name": "Mobile Responsiveness",
+          "status": "FAILED",
+          "error": "Mobile responsiveness test failed: Request failed with status code 400"
+        }
+      ]
+    }
+  ]
+}

@@ -98,3 +98,9 @@ Once set up, you can:
 - **Set up notifications** for new responses
 
 Your RSVP Management App now has full Google Sheets integration! 🎉
+
+
+
+
+
+

@@ -203,3 +203,9 @@ GOOGLE_APPS_SCRIPT_URL=https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec
 ## 🎉 You're Done!
 
 Your RSVP forms will now automatically save to Google Sheets!
+
+
+
+
+
+

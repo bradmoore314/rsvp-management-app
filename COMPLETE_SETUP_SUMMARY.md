@@ -105,3 +105,9 @@ If you encounter any issues:
 Your RSVP Management App now has complete Google Sheets integration! QR codes will point to beautiful forms that automatically save responses to Google Sheets - perfect for school events and distribution.
 
 The app is currently running on http://localhost:4000 and ready to use!
+
+
+
+
+
+

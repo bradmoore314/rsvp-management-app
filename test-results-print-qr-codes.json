@@ -1,0 +1,54 @@
+{
+  "timestamp": "2025-09-27T08:29:52.227Z",
+  "totalTests": 9,
+  "passed": 1,
+  "failed": 8,
+  "errors": [],
+  "results": [
+    {
+      "name": "QR Code Service Health",
+      "status": "FAILED",
+      "error": "QR code service health test failed: Request failed with status code 404"
+    },
+    {
+      "name": "QR Code Generation",
+      "status": "FAILED",
+      "error": "QR code generation test failed: Request failed with status code 400"
+    },
+    {
+      "name": "QR Code Sizes",
+      "status": "FAILED",
+      "error": "Only 0/5 QR code sizes generated successfully"
+    },
+    {
+      "name": "QR Code Formats",
+      "status": "FAILED",
+      "error": "Only 0/3 QR code formats generated successfully"
+    },
+    {
+      "name": "Batch QR Code Generation",
+      "status": "FAILED",
+      "error": "Batch QR code generation test failed: Request failed with status code 400"
+    },
+    {
+      "name": "Host Dashboard Print Functionality",
+      "status": "FAILED",
+      "error": "Missing elements: Print Button, Print Function"
+    },
+    {
+      "name": "Print-Optimized Layout",
+      "status": "PASSED",
+      "details": "Print-optimized layout functionality available in host dashboard"
+    },
+    {
+      "name": "QR Code Scanning Simulation",
+      "status": "FAILED",
+      "error": "QR code scanning simulation test failed: Request failed with status code 400"
+    },
+    {
+      "name": "Mobile Responsiveness",
+      "status": "FAILED",
+      "error": "Mobile responsiveness test failed: Request failed with status code 400"
+    }
+  ]
+}

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Invitation Generator - RSVP Management</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/invitation-generator.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1>🎨 AI Invitation Generator</h1>
+                <p>Create stunning, professional invitations with AI-powered design</p>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Step 1: Event Details -->
+            <section class="step-section active" id="step1">
+                <div class="step-header">
+                    <h2>📝 Event Details</h2>
+                    <p>Tell us about your event</p>
+                </div>
+                
+                <form class="event-form" id="eventForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="eventType">Event Type *</label>
+                            <select id="eventType" name="eventType" required>
+                                <option value="">Select event type</option>
+                                <option value="birthday">Birthday Party</option>
+                                <option value="wedding">Wedding</option>
+                                <option value="corporate">Corporate Event</option>
+                                <option value="holiday">Holiday Party</option>
+                                <option value="casual">Casual Gathering</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="eventName">Event Name *</label>
+                            <input type="text" id="eventName" name="eventName" placeholder="e.g., John's 30th Birthday Bash" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="eventDate">Date *</label>
+                            <input type="date" id="eventDate" name="eventDate" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="eventTime">Time *</label>
+                            <input type="time" id="eventTime" name="eventTime" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="eventLocation">Location *</label>
+                        <input type="text" id="eventLocation" name="eventLocation" placeholder="e.g., 123 Main St, City, State" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="hostName">Host Name *</label>
+                        <input type="text" id="hostName" name="hostName" placeholder="Your name" required>
+                    </div>
+                    
+                    <button type="button" class="btn btn-primary" onclick="nextStep()">Next: Choose Theme</button>
+                </form>
+            </section>
+
+            <!-- Step 2: Theme Selection -->
+            <section class="step-section" id="step2">
+                <div class="step-header">
+                    <h2>🎨 Choose Your Theme</h2>
+                    <p>Select a theme that matches your event vibe</p>
+                </div>
+                
+                <div class="theme-grid" id="themeGrid">
+                    <!-- Themes will be loaded dynamically -->
+                </div>
+                
+                <div class="step-navigation">
+                    <button type="button" class="btn btn-secondary" onclick="prevStep()">Back</button>
+                    <button type="button" class="btn btn-primary" onclick="nextStep()">Next: Customize</button>
+                </div>
+            </section>
+
+            <!-- Step 3: Customization -->
+            <section class="step-section" id="step3">
+                <div class="step-header">
+                    <h2>✨ Customize Your Invitation</h2>
+                    <p>Add your personal touch</p>
+                </div>
+                
+                <div class="customization-content">
+                    <div class="customization-left">
+                        <div class="form-group">
+                            <label for="customPrompt">Custom Design Prompt</label>
+                            <textarea id="customPrompt" name="customPrompt" rows="4" placeholder="Describe your vision... e.g., 'Make it feel like a summer BBQ with warm colors and fun fonts'"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="animationType">Animation Style</label>
+                            <select id="animationType" name="animationType">
+                                <option value="cardOpen">Card Opening (3D)</option>
+                                <option value="reveal">Elegant Reveal</option>
+                                <option value="slideIn">Slide In</option>
+                                <option value="particle">Particle Effect</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="photos">Upload Photos (Optional)</label>
+                            <input type="file" id="photos" name="photos" multiple accept="image/*">
+                            <small>Upload up to 5 photos to include in your invitation</small>
+                        </div>
+                    </div>
+                    
+                    <div class="customization-right">
+                        <div class="ai-suggestions">
+                            <h3>🤖 AI Suggestions</h3>
+                            <div class="suggestions-list" id="suggestionsList">
+                                <!-- AI suggestions will be loaded here -->
+                            </div>
+                            <button type="button" class="btn btn-small btn-secondary" onclick="loadAISuggestions()">Get AI Suggestions</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="step-navigation">
+                    <button type="button" class="btn btn-secondary" onclick="prevStep()">Back</button>
+                    <button type="button" class="btn btn-primary" onclick="generateInvitation()">Generate Invitation</button>
+                </div>
+            </section>
+
+            <!-- Step 4: Preview & Generate -->
+            <section class="step-section" id="step4">
+                <div class="step-header">
+                    <h2>🎉 Your Invitation is Ready!</h2>
+                    <p>Preview and generate your stunning invitation</p>
+                </div>
+                
+                <div class="preview-content">
+                    <div class="preview-left">
+                        <div class="preview-container" id="previewContainer">
+                            <!-- Preview will be loaded here -->
+                        </div>
+                    </div>
+                    
+                    <div class="preview-right">
+                        <div class="action-buttons">
+                            <button type="button" class="btn btn-primary" onclick="printInvitation()">🖨️ Print Invitation</button>
+                            <button type="button" class="btn btn-secondary" onclick="previewRSVP()">👀 Preview RSVP Page</button>
+                            <button type="button" class="btn btn-secondary" onclick="downloadInvitation()">📥 Download</button>
+                        </div>
+                        
+                        <div class="invitation-details">
+                            <h3>Invitation Details</h3>
+                            <div id="invitationDetails">
+                                <!-- Details will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="step-navigation">
+                    <button type="button" class="btn btn-secondary" onclick="prevStep()">Back to Customize</button>
+                    <button type="button" class="btn btn-primary" onclick="createNewInvitation()">Create Another</button>
+                </div>
+            </section>
+        </main>
+
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-content">
+                <div class="loading-spinner"></div>
+                <h3>🎨 AI is creating your invitation...</h3>
+                <p>This may take a few moments</p>
+            </div>
+        </div>
+
+        <!-- Status Messages -->
+        <div class="status-message" id="statusMessage"></div>
+    </div>
+
+    <script src="js/invitation-generator.js"></script>
+</body>
+</html>

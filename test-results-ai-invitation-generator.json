@@ -1,0 +1,54 @@
+{
+  "timestamp": "2025-09-27T08:35:25.960Z",
+  "totalTests": 9,
+  "passed": 7,
+  "failed": 2,
+  "errors": [],
+  "results": [
+    {
+      "name": "Frontend Page Accessibility",
+      "status": "PASSED",
+      "details": "Frontend page fully accessible with all required elements"
+    },
+    {
+      "name": "Themes Endpoint",
+      "status": "PASSED",
+      "details": "All 5 themes available: birthday, wedding, corporate, holiday, casual"
+    },
+    {
+      "name": "Animations Endpoint",
+      "status": "PASSED",
+      "details": "All 4 animations available: cardOpen, reveal, slideIn, particle"
+    },
+    {
+      "name": "Gemini AI Connection",
+      "status": "PASSED",
+      "details": "Gemini AI connection successful"
+    },
+    {
+      "name": "Content Suggestions",
+      "status": "PASSED",
+      "details": "Generated 4 content suggestions"
+    },
+    {
+      "name": "Theme Variations",
+      "status": "PASSED",
+      "details": "Theme variations tested: birthday: 3 variations, wedding: 3 variations, corporate: 3 variations, holiday: 3 variations, casual: 3 variations"
+    },
+    {
+      "name": "Invitation Generation",
+      "status": "PASSED",
+      "details": "All 5 event types generated successfully"
+    },
+    {
+      "name": "Print Functionality",
+      "status": "FAILED",
+      "error": "Print functionality test failed: Request failed with status code 500"
+    },
+    {
+      "name": "RSVP Page Generation",
+      "status": "FAILED",
+      "error": "RSVP page generation test failed: Request failed with status code 500"
+    }
+  ]
+}
