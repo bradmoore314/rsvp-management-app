@@ -337,45 +337,51 @@ class HostDashboard {
             const eventsList = document.getElementById('eventsList');
             eventsList.innerHTML = '<p>Loading events...</p>';
 
-            // Try multiple approaches to load events
+            // Load all events first, then filter if needed
             let response;
             let events = [];
             
             try {
-                // First, try to load events for the current host
-                console.log(`🔍 Loading events for host: ${this.host.email}`);
-                response = await this.apiCall(`/events/host/${this.host.email}`);
-                events = response.data || [];
-                console.log(`📊 Found ${events.length} events for host ${this.host.email}`);
+                // Always try to get all events first (most reliable)
+                console.log('🔍 Loading all events from system');
+                response = await this.apiCall(`/events`);
+                const allEvents = response.data || [];
+                console.log(`📊 Found ${allEvents.length} total events in system`);
+                
+                // For now, show ALL events (host email filtering is causing issues)
+                events = allEvents;
+                console.log(`📊 Showing all ${events.length} events (host email filtering disabled for debugging)`);
+                
+                // TODO: Re-enable host filtering once we fix the host email assignment issue
+                // events = allEvents.filter(event => 
+                //     event.hostEmail === this.host.email || 
+                //     event.hostEmail === 'host@example.com' ||
+                //     event.hostEmail === 'test@example.com'
+                // );
+                
             } catch (error) {
-                console.log('Failed to load events with current host email, trying default:', error);
-            }
-            
-            // If no events found with current host, try default host
-            if (events.length === 0) {
+                console.log('Failed to load all events, trying host-specific endpoints:', error);
+                
+                // Fallback to host-specific endpoints
                 try {
-                    console.log('🔍 Trying default host email: host@example.com');
-                    response = await this.apiCall(`/events/host/host@example.com`);
+                    console.log(`🔍 Fallback: Loading events for host: ${this.host.email}`);
+                    response = await this.apiCall(`/events/host/${this.host.email}`);
                     events = response.data || [];
-                    console.log(`📊 Found ${events.length} events for default host`);
-                } catch (error) {
-                    console.log('Failed to load events with default host:', error);
+                    console.log(`📊 Found ${events.length} events for host ${this.host.email}`);
+                } catch (error2) {
+                    console.log('Failed to load events with current host email:', error2);
                 }
-            }
-            
-            // If still no events, try to get all events (for debugging)
-            if (events.length === 0) {
-                try {
-                    console.log('🔍 Trying to get all events (debug mode)');
-                    response = await this.apiCall(`/events`);
-                    const allEvents = response.data || [];
-                    console.log(`📊 Found ${allEvents.length} total events in system`);
-                    
-                    // Show ALL events for now (since we're having host email issues)
-                    events = allEvents;
-                    console.log(`📊 Showing all ${events.length} events (host email filtering disabled)`);
-                } catch (error) {
-                    console.log('Failed to load all events:', error);
+                
+                // If still no events, try default host
+                if (events.length === 0) {
+                    try {
+                        console.log('🔍 Fallback: Trying default host email: host@example.com');
+                        response = await this.apiCall(`/events/host/host@example.com`);
+                        events = response.data || [];
+                        console.log(`📊 Found ${events.length} events for default host`);
+                    } catch (error3) {
+                        console.log('Failed to load events with default host:', error3);
+                    }
                 }
             }
             
