@@ -57,6 +57,31 @@ router.get('/event/:eventId', async (req, res) => {
 });
 
 /**
+ * GET /rsvp-management/responses/:eventId
+ * Get all RSVP responses for an event (alternative endpoint)
+ */
+router.get('/responses/:eventId', async (req, res) => {
+    try {
+        const { eventId } = req.params;
+        const responses = await rsvpService.getRSVPResponses(eventId);
+        
+        res.json({
+            success: true,
+            data: responses,
+            count: responses.length,
+            message: `Found ${responses.length} RSVP responses`
+        });
+    } catch (error) {
+        console.error('Error getting RSVP responses:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to get RSVP responses',
+            message: error.message
+        });
+    }
+});
+
+/**
  * GET /rsvp-management/response/:rsvpId
  * Get a specific RSVP response
  */

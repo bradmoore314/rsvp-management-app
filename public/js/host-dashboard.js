@@ -17,12 +17,14 @@ class HostDashboard {
         // Check if we have a session ID in localStorage
         this.sessionId = localStorage.getItem('hostSessionId');
         
-        // If no session, use default host (no need to show sign-in for now)
+        // If no session, show sign-in button
         if (!this.sessionId) {
-            console.log('No session found, using default host');
+            console.log('No session found, showing sign-in option');
+            this.showSignInButton();
+            // Use default host for now, but show sign-in option
             this.host = {
-                name: 'Event Host',
-                email: 'host@example.com'
+                name: 'Guest User',
+                email: 'user@example.com'
             };
             this.updateHostInfo();
             await this.loadDashboardData();
@@ -209,6 +211,11 @@ class HostDashboard {
         // Show logout button and hide sign-in button
         document.getElementById('logoutBtn').style.display = 'block';
         document.getElementById('googleSignInBtn').style.display = 'none';
+    }
+
+    showSignInButton() {
+        document.getElementById('googleSignInBtn').style.display = 'inline-block';
+        document.getElementById('logoutBtn').style.display = 'none';
     }
 
 
