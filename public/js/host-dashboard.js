@@ -337,6 +337,19 @@ class HostDashboard {
             const eventsList = document.getElementById('eventsList');
             eventsList.innerHTML = '<p>Loading events...</p>';
 
+            // Check browser cache first
+            const cachedEvents = localStorage.getItem('cachedEvents');
+            const cacheTimestamp = localStorage.getItem('eventsCacheTimestamp');
+            const now = Date.now();
+            const cacheExpiry = 5 * 60 * 1000; // 5 minutes
+
+            if (cachedEvents && cacheTimestamp && (now - parseInt(cacheTimestamp)) < cacheExpiry) {
+                console.log('📦 Loading events from browser cache');
+                this.events = JSON.parse(cachedEvents);
+                this.renderEvents();
+                return;
+            }
+
             // Load all events first, then filter if needed
             let response;
             let events = [];
@@ -387,19 +400,34 @@ class HostDashboard {
             
             this.events = events;
 
-            if (this.events.length === 0) {
-                eventsList.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon">🎉</div>
-                        <h3>No events yet</h3>
-                        <p>Create your first event to get started with RSVP management!</p>
-                        <button class="btn btn-primary" onclick="dashboard.showEventModal()">Create Event</button>
-                    </div>
-                `;
-                return;
-            }
+            // Cache events in browser for faster loading
+            localStorage.setItem('cachedEvents', JSON.stringify(events));
+            localStorage.setItem('eventsCacheTimestamp', Date.now().toString());
+            console.log('💾 Events cached in browser');
 
-            eventsList.innerHTML = this.events.map(event => `
+            this.renderEvents();
+        } catch (error) {
+            console.error('Failed to load events:', error);
+            document.getElementById('eventsList').innerHTML = '<p>Failed to load events. Please try again.</p>';
+        }
+    }
+
+    renderEvents() {
+        const eventsList = document.getElementById('eventsList');
+        
+        if (this.events.length === 0) {
+            eventsList.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">🎉</div>
+                    <h3>No events yet</h3>
+                    <p>Create your first event to get started with RSVP management!</p>
+                    <button class="btn btn-primary" onclick="dashboard.showEventModal()">Create Event</button>
+                </div>
+            `;
+            return;
+        }
+
+        eventsList.innerHTML = this.events.map(event => `
                 <div class="event-card">
                     <div class="event-header">
                         <div>

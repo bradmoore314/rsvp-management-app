@@ -18,19 +18,10 @@ class RSVPDashboard {
     init() {
         this.checkAuthentication();
         this.bindEvents();
+        this.loadEvents();
     }
 
     async checkAuthentication() {
-        // Get event ID from URL
-        const urlParams = new URLSearchParams(window.location.search);
-        this.eventId = urlParams.get('eventId');
-        
-        if (!this.eventId) {
-            this.showStatus('Event ID not provided', 'error');
-            setTimeout(() => window.location.href = '/host-dashboard', 2000);
-            return;
-        }
-
         // Check if we have a session ID in localStorage
         this.sessionId = localStorage.getItem('hostSessionId');
         
@@ -62,10 +53,92 @@ class RSVPDashboard {
         }
     }
 
+    async loadEvents() {
+        try {
+            // Check browser cache first
+            const cachedEvents = localStorage.getItem('cachedEvents');
+            const cacheTimestamp = localStorage.getItem('eventsCacheTimestamp');
+            const now = Date.now();
+            const cacheExpiry = 5 * 60 * 1000; // 5 minutes
+
+            let events = [];
+            if (cachedEvents && cacheTimestamp && (now - parseInt(cacheTimestamp)) < cacheExpiry) {
+                console.log('📦 Loading events from browser cache for RSVP Dashboard');
+                events = JSON.parse(cachedEvents);
+            } else {
+                // Load from API
+                const response = await this.apiCall('/events');
+                events = response.data || [];
+                // Cache for future use
+                localStorage.setItem('cachedEvents', JSON.stringify(events));
+                localStorage.setItem('eventsCacheTimestamp', Date.now().toString());
+            }
+
+            this.populateEventSelector(events);
+        } catch (error) {
+            console.error('Failed to load events:', error);
+            this.showStatus('Failed to load events', 'error');
+        }
+    }
+
+    populateEventSelector(events) {
+        const selector = document.getElementById('eventSelector');
+        if (!selector) return;
+
+        // Clear existing options except the first one
+        selector.innerHTML = '<option value="">Select an event to view RSVPs...</option>';
+
+        events.forEach(event => {
+            const option = document.createElement('option');
+            option.value = event.id;
+            option.textContent = `${event.name} - ${new Date(event.date).toLocaleDateString()}`;
+            selector.appendChild(option);
+        });
+
+        // Check if there's an eventId in URL and select it
+        const urlParams = new URLSearchParams(window.location.search);
+        const eventIdFromUrl = urlParams.get('eventId');
+        if (eventIdFromUrl) {
+            selector.value = eventIdFromUrl;
+            this.eventId = eventIdFromUrl;
+            this.loadDashboardData();
+        }
+    }
+
+    clearDashboard() {
+        // Clear event info
+        document.getElementById('eventName').textContent = 'Event Name';
+        document.getElementById('eventDate').textContent = 'Date and Time';
+        document.getElementById('eventLocation').textContent = '📍 Location';
+        document.getElementById('eventStatus').textContent = 'Active';
+
+        // Clear stats
+        document.getElementById('totalInvites').textContent = '0';
+        document.getElementById('totalResponses').textContent = '0';
+        document.getElementById('responseRate').textContent = '0%';
+        document.getElementById('attending').textContent = '0';
+        document.getElementById('notAttending').textContent = '0';
+        document.getElementById('totalGuests').textContent = '0';
+
+        // Clear dashboard data
+        this.dashboardData = null;
+        this.eventId = null;
+    }
+
     bindEvents() {
         // Navigation
         document.getElementById('backBtn').addEventListener('click', () => {
-            window.location.href = `/event-details?eventId=${this.eventId}`;
+            window.location.href = '/host-dashboard';
+        });
+
+        // Event selector
+        document.getElementById('eventSelector').addEventListener('change', (e) => {
+            this.eventId = e.target.value;
+            if (this.eventId) {
+                this.loadDashboardData();
+            } else {
+                this.clearDashboard();
+            }
         });
 
         // Tab switching
@@ -123,6 +196,11 @@ class RSVPDashboard {
     }
 
     async loadDashboardData() {
+        if (!this.eventId) {
+            this.clearDashboard();
+            return;
+        }
+
         try {
             const response = await this.apiCall(`/rsvp-dashboard/event/${this.eventId}`, {
                 headers: {
