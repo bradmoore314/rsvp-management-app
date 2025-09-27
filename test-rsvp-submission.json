@@ -1,0 +1,13 @@
+{
+  "eventId": "demo-event-123",
+  "inviteId": "test-invite-456",
+  "guestName": "Test User",
+  "guestEmail": "test@example.com",
+  "attendance": "yes",
+  "guestCount": 1,
+  "guestPhone": "",
+  "dietaryRestrictions": "",
+  "message": "Looking forward to it!",
+  "ipAddress": "",
+  "userAgent": "Test"
+}

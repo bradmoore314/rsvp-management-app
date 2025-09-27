@@ -1,6 +1,6 @@
 const express = require('express');
-const { eventService, rsvpService, qrCodeService } = require('../services/sharedServices');
 const router = express.Router();
+const rsvpService = require('../services/rsvpService');
 
 // Helper function to safely get form values
 function getFormValue(elementId) {
