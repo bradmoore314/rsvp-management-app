@@ -245,9 +245,11 @@ class HostDashboard {
 
     async loadOverviewStats() {
         try {
-            // Load events for this host
-            const eventsResponse = await this.apiCall(`/events/host/${this.host.email}`);
+            // Load ALL events (since we're having host email filtering issues)
+            console.log('🔍 Loading ALL events for overview stats');
+            const eventsResponse = await this.apiCall(`/events`);
             this.events = eventsResponse.data || [];
+            console.log(`📊 Loaded ${this.events.length} events for overview stats`);
 
             // Update stats
             document.getElementById('totalEvents').textContent = this.events.length;
@@ -369,13 +371,9 @@ class HostDashboard {
                     const allEvents = response.data || [];
                     console.log(`📊 Found ${allEvents.length} total events in system`);
                     
-                    // Filter events that might belong to this host
-                    events = allEvents.filter(event => 
-                        event.hostEmail === this.host.email || 
-                        event.hostEmail === 'host@example.com' ||
-                        !event.hostEmail // Events without hostEmail
-                    );
-                    console.log(`📊 Filtered to ${events.length} relevant events`);
+                    // Show ALL events for now (since we're having host email issues)
+                    events = allEvents;
+                    console.log(`📊 Showing all ${events.length} events (host email filtering disabled)`);
                 } catch (error) {
                     console.log('Failed to load all events:', error);
                 }
