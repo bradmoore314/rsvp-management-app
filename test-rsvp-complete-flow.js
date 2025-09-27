@@ -81,7 +81,7 @@ class RSVPTestSuite {
     }
 
     async testRSVPFormAccess() {
-        const response = await axios.get(`${BASE_URL}/rsvp/${this.inviteId}`);
+        const response = await axios.get(`${BASE_URL}/rsvp/${this.eventId}/${this.inviteId}`);
         if (response.status !== 200) {
             throw new Error(`RSVP form not accessible: ${response.status}`);
         }
