@@ -495,12 +495,12 @@ class HostDashboard {
                 </div>
             `).join('');
         } catch (error) {
-            console.error('Failed to load events:', error);
-            document.getElementById('eventsList').innerHTML = `
+            console.error('Failed to render events:', error);
+            eventsList.innerHTML = `
                 <div class="error-state">
                     <div class="error-icon">⚠️</div>
-                    <h3>Failed to load events</h3>
-                    <p>There was an error loading your events. Please try again.</p>
+                    <h3>Failed to render events</h3>
+                    <p>There was an error rendering your events. Please try again.</p>
                     <button class="btn btn-primary" onclick="dashboard.loadEvents()">Retry</button>
                 </div>
             `;
