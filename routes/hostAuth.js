@@ -16,6 +16,23 @@ module.exports.hostAuthService = hostAuthService;
 })();
 
 /**
+ * GET /host-auth/login
+ * Convenience endpoint to start Google OAuth by redirecting to auth URL
+ */
+router.get('/login', async (req, res) => {
+    try {
+        const authUrl = hostAuthService.getGoogleAuthUrl();
+        if (!authUrl) {
+            return res.status(500).send('Google OAuth not configured');
+        }
+        return res.redirect(authUrl);
+    } catch (error) {
+        console.error('Error starting host login:', error);
+        return res.status(500).send('Failed to start login');
+    }
+});
+
+/**
  * Middleware to validate host session
  */
 const requireHostAuth = async (req, res, next) => {
