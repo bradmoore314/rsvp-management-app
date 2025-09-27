@@ -37,37 +37,8 @@ router.post('/', async (req, res) => {
     }
 });
 
-/**
- * GET /events/:eventId
- * Get event by ID
- */
-router.get('/:eventId', async (req, res) => {
-    try {
-        const { eventId } = req.params;
-        const event = await eventService.getEvent(eventId);
-
-        if (!event) {
-            return res.status(404).json({
-                success: false,
-                error: 'Event not found',
-                message: `No event found with ID: ${eventId}`
-            });
-        }
-
-        res.json({
-            success: true,
-            data: event,
-            message: 'Event retrieved successfully'
-        });
-    } catch (error) {
-        console.error('Error getting event:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Failed to get event',
-            message: error.message
-        });
-    }
-});
+// NOTE: Define fixed routes BEFORE parameterized routes like "/:eventId"
+// to avoid path conflicts (e.g., "/events/reload" being treated as an ID)
 
 /**
  * PUT /events/:eventId
@@ -197,6 +168,38 @@ router.get('/host/:hostEmail', async (req, res) => {
         res.status(500).json({
             success: false,
             error: 'Failed to get events for host',
+            message: error.message
+        });
+    }
+});
+
+/**
+ * GET /events/:eventId
+ * Get event by ID
+ */
+router.get('/:eventId', async (req, res) => {
+    try {
+        const { eventId } = req.params;
+        const event = await eventService.getEvent(eventId);
+
+        if (!event) {
+            return res.status(404).json({
+                success: false,
+                error: 'Event not found',
+                message: `No event found with ID: ${eventId}`
+            });
+        }
+
+        res.json({
+            success: true,
+            data: event,
+            message: 'Event retrieved successfully'
+        });
+    } catch (error) {
+        console.error('Error getting event:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to get event',
             message: error.message
         });
     }
