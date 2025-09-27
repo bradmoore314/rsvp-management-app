@@ -427,7 +427,8 @@ class HostDashboard {
             return;
         }
 
-        eventsList.innerHTML = this.events.map(event => `
+        try {
+            eventsList.innerHTML = this.events.map(event => `
                 <div class="event-card">
                     <div class="event-header">
                         <div>
