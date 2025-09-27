@@ -113,7 +113,17 @@ router.put('/:eventId', async (req, res) => {
  */
 router.get('/', async (req, res) => {
     try {
+        console.log('🔍 DEBUG: /events endpoint called');
+        
+        // Ensure the service is initialized
+        if (!eventService.isInitialized) {
+            console.log('🔍 DEBUG: Event service not initialized, initializing now...');
+            await eventService.initialize();
+        }
+        
         const events = await eventService.getAllEvents();
+        
+        console.log(`🔍 DEBUG: /events endpoint returning ${events.length} events`);
         
         res.json({
             success: true,
@@ -132,13 +142,49 @@ router.get('/', async (req, res) => {
 });
 
 /**
+ * GET /events/reload
+ * Force re-initialize service and reload events from Google Drive
+ */
+router.get('/reload', async (req, res) => {
+    try {
+        console.log('🔄 DEBUG: /events/reload called - forcing re-initialize');
+        await eventService.initialize();
+        const events = await eventService.getAllEvents();
+        console.log(`🔄 DEBUG: Reload complete, ${events.length} events in memory`);
+        res.json({
+            success: true,
+            data: events,
+            count: events.length,
+            message: `Reloaded ${events.length} events from Google Drive`
+        });
+    } catch (error) {
+        console.error('Error reloading events:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to reload events',
+            message: error.message
+        });
+    }
+});
+
+/**
  * GET /events/host/:hostEmail
  * Get all events for a host
  */
 router.get('/host/:hostEmail', async (req, res) => {
     try {
         const { hostEmail } = req.params;
+        console.log(`🔍 DEBUG: /events/host/${hostEmail} endpoint called`);
+        
+        // Ensure the service is initialized
+        if (!eventService.isInitialized) {
+            console.log('🔍 DEBUG: Event service not initialized, initializing now...');
+            await eventService.initialize();
+        }
+        
         const events = await eventService.getEventsByHost(hostEmail);
+        
+        console.log(`🔍 DEBUG: /events/host/${hostEmail} endpoint returning ${events.length} events`);
         
         res.json({
             success: true,

@@ -249,6 +249,9 @@ class EventService {
      */
     async getAllEvents() {
         try {
+            console.log(`🔍 DEBUG: getAllEvents called - events map size: ${this.events.size}`);
+            console.log(`🔍 DEBUG: Events map keys: ${Array.from(this.events.keys()).join(', ')}`);
+            
             const events = Array.from(this.events.values())
                 .sort((a, b) => new Date(b.created) - new Date(a.created));
 

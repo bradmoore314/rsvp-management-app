@@ -1,6 +1,10 @@
 const express = require('express');
 const { eventService, rsvpService, qrCodeService } = require('../services/sharedServices');
+const RSVPService = require('../services/rsvpService');
 const router = express.Router();
+
+// Create a direct instance as fallback
+const directRSVPService = new RSVPService();
 
 // Helper function to safely get form values
 function getFormValue(elementId) {
@@ -461,8 +465,21 @@ router.post('/submit', async (req, res) => {
 
         console.log('🔍 DEBUG: Processing RSVP data:', JSON.stringify(rsvpData, null, 2));
 
-        // Submit RSVP using the service
-        const rsvpResponse = await rsvpService.submitRSVP(rsvpData);
+        // Submit RSVP using the service (with fallback)
+        let rsvpResponse;
+        try {
+            if (rsvpService && typeof rsvpService.submitRSVP === 'function') {
+                rsvpResponse = await rsvpService.submitRSVP(rsvpData);
+            } else {
+                console.log('🔍 DEBUG: Using direct RSVP service as fallback');
+                await directRSVPService.initialize();
+                rsvpResponse = await directRSVPService.submitRSVP(rsvpData);
+            }
+        } catch (serviceError) {
+            console.log('🔍 DEBUG: Shared service failed, trying direct service:', serviceError.message);
+            await directRSVPService.initialize();
+            rsvpResponse = await directRSVPService.submitRSVP(rsvpData);
+        }
 
         console.log('🔍 DEBUG: RSVP submission successful:', JSON.stringify(rsvpResponse, null, 2));
 
