@@ -498,16 +498,23 @@ router.get('/:eventId/:inviteId', async (req, res) => {
  */
 router.post('/submit', async (req, res) => {
     try {
+        console.log('🔍 DEBUG: RSVP submission received');
+        console.log('🔍 DEBUG: Request body:', JSON.stringify(req.body, null, 2));
+        
         const rsvpData = req.body;
 
         // Add request metadata
         rsvpData.ipAddress = req.ip || req.connection.remoteAddress;
         rsvpData.userAgent = req.get('User-Agent');
 
-        // Submit RSVP using the service
-        const rsvpResponse = await rsvpService.submitRSVP(rsvpData);
+        console.log('🔍 DEBUG: RSVP data with metadata:', JSON.stringify(rsvpData, null, 2));
 
-        res.json({
+        // Submit RSVP using the service
+        console.log('🔍 DEBUG: Calling rsvpService.submitRSVP...');
+        const rsvpResponse = await rsvpService.submitRSVP(rsvpData);
+        console.log('🔍 DEBUG: RSVP service response:', JSON.stringify(rsvpResponse, null, 2));
+
+        const response = {
             success: true,
             message: 'RSVP submitted successfully',
             data: {
@@ -516,7 +523,10 @@ router.post('/submit', async (req, res) => {
                 inviteId: rsvpResponse.inviteId,
                 submittedAt: rsvpResponse.submittedAt
             }
-        });
+        };
+
+        console.log('🔍 DEBUG: Sending response:', JSON.stringify(response, null, 2));
+        res.json(response);
     } catch (error) {
         console.error('Error submitting RSVP:', error);
         res.status(500).json({

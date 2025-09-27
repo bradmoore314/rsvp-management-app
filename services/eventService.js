@@ -76,6 +76,9 @@ class EventService {
             }
 
             console.log(`📂 Successfully loaded ${loadedCount} events from Google Drive`);
+            console.log(`🔍 DEBUG: Event IDs loaded: ${Array.from(this.events.keys()).join(', ')}`);
+            console.log(`🔍 DEBUG: Event names loaded: ${Array.from(this.events.values()).map(e => e.name).join(', ')}`);
+            console.log(`🔍 DEBUG: Event hosts loaded: ${Array.from(this.events.values()).map(e => e.hostEmail || 'unknown').join(', ')}`);
         } catch (error) {
             console.error('❌ Failed to load events from Google Drive:', error.message);
         }
@@ -250,6 +253,7 @@ class EventService {
                 .sort((a, b) => new Date(b.created) - new Date(a.created));
 
             console.log(`📊 Returning ${events.length} total events from memory`);
+            console.log(`🔍 DEBUG: All events in memory: ${events.map(e => `${e.name}(${e.id})`).join(', ')}`);
             return events;
         } catch (error) {
             console.error(`❌ Failed to get all events:`, error.message);
