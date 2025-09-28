@@ -7,6 +7,7 @@ const authRouter = require('./routes/auth');
 const eventsRouter = require('./routes/events');
 const invitesRouter = require('./routes/invites');
 const rsvpRouter = require('./routes/rsvp');
+const invitationGeneratorRouter = require('./routes/invitationGenerator');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -22,10 +23,15 @@ app.get('/', (_req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+app.get('/invitation-generator', (_req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'invitation-generator.html'));
+});
+
 app.use('/auth', authRouter);
 app.use('/events', eventsRouter);
 app.use('/invites', invitesRouter);
 app.use('/rsvp', rsvpRouter);
+app.use('/invitation-generator', invitationGeneratorRouter);
 
 if (shouldListen) {
     app.listen(PORT, () => {
