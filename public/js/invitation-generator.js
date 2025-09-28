@@ -6,14 +6,49 @@ class InvitationGenerator {
         this.selectedTheme = null;
         this.generatedInvitation = null;
         this.eventData = {};
+        this.currentUser = null;
         
         this.init();
     }
 
     init() {
+        this.checkAuthentication();
         this.setupEventListeners();
         this.loadThemes();
         this.setMinDate();
+    }
+
+    async checkAuthentication() {
+        try {
+            const response = await fetch('/auth/me', {
+                credentials: 'include'
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                this.currentUser = data.user;
+                this.showUserInfo();
+            } else {
+                this.redirectToLogin();
+            }
+        } catch (error) {
+            console.error('Auth check failed:', error);
+            this.redirectToLogin();
+        }
+    }
+
+    showUserInfo() {
+        const userInfo = document.getElementById('userInfo');
+        const userName = document.getElementById('userName');
+        
+        if (this.currentUser) {
+            userName.textContent = `Welcome, ${this.currentUser.name || this.currentUser.email}`;
+            userInfo.style.display = 'block';
+        }
+    }
+
+    redirectToLogin() {
+        window.location.href = '/';
     }
 
     setupEventListeners() {
@@ -33,6 +68,14 @@ class InvitationGenerator {
         document.getElementById('photos').addEventListener('change', (e) => {
             this.handlePhotoUpload(e.target.files);
         });
+
+        // Logout handler
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => {
+                this.logout();
+            });
+        }
     }
 
     setMinDate() {
@@ -555,6 +598,104 @@ class InvitationGenerator {
         this.showStatus('Ready to create a new invitation!', 'info');
     }
 
+    async logout() {
+        try {
+            await fetch('/auth/logout', {
+                method: 'POST',
+                credentials: 'include'
+            });
+            window.location.href = '/';
+        } catch (error) {
+            console.error('Logout failed:', error);
+            this.showStatus('Logout failed', 'error');
+        }
+    }
+
+    async createEventAndInvites() {
+        if (!this.currentUser) {
+            this.showStatus('Please log in to create events', 'error');
+            return;
+        }
+
+        if (!this.generatedInvitation) {
+            this.showStatus('Please generate an invitation first', 'error');
+            return;
+        }
+
+        this.showLoading('Creating event and generating invites...');
+
+        try {
+            const eventData = {
+                eventName: this.eventData.eventName,
+                eventDate: this.eventData.eventDate,
+                eventTime: this.eventData.eventTime,
+                eventLocation: this.eventData.eventLocation,
+                hostName: this.eventData.hostName,
+                hostEmail: this.currentUser.email,
+                description: this.eventData.description || '',
+                invitationData: this.generatedInvitation,
+                inviteCount: 1
+            };
+
+            const response = await fetch('/invitation-generator/create-event', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify(eventData)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                this.showStatus('Event created and invites generated successfully!', 'success');
+                
+                // Show the generated invites with QR codes
+                this.showGeneratedInvites(result.event, result.invites);
+            } else {
+                this.showStatus(result.error || 'Failed to create event', 'error');
+            }
+        } catch (error) {
+            console.error('Error creating event:', error);
+            this.showStatus('Failed to create event', 'error');
+        } finally {
+            this.hideLoading();
+        }
+    }
+
+    showGeneratedInvites(event, invites) {
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <h3>🎉 Event Created Successfully!</h3>
+                <p><strong>Event:</strong> ${event.name}</p>
+                <p><strong>Date:</strong> ${event.date} at ${event.time}</p>
+                <p><strong>Location:</strong> ${event.location}</p>
+                
+                <h4>Generated Invites with QR Codes:</h4>
+                <div class="invites-list">
+                    ${invites.map(invite => `
+                        <div class="invite-item">
+                            <p><strong>RSVP URL:</strong> <a href="${invite.rsvpUrl}" target="_blank">${invite.rsvpUrl}</a></p>
+                            <div class="qr-code">
+                                <img src="${invite.qrCodeDataURL}" alt="QR Code" style="max-width: 150px;">
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                
+                <div class="modal-actions">
+                    <button class="btn btn-primary" onclick="window.location.href='/host.html'">Go to Event Manager</button>
+                    <button class="btn btn-secondary" onclick="this.closest('.modal-overlay').remove()">Close</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+    }
+
     // Utility Functions
     showLoading(message = 'Loading...') {
         const overlay = document.getElementById('loadingOverlay');
@@ -613,6 +754,10 @@ function downloadInvitation() {
 
 function createNewInvitation() {
     invitationGenerator.createNewInvitation();
+}
+
+function createEventAndInvites() {
+    invitationGenerator.createEventAndInvites();
 }
 
 // Initialize when DOM is loaded

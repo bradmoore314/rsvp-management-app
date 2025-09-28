@@ -16,6 +16,10 @@
             <div class="header-content">
                 <h1>🎨 AI Invitation Generator</h1>
                 <p>Create stunning, professional invitations with AI-powered design</p>
+                <div class="user-info" id="userInfo" style="display: none;">
+                    <span id="userName"></span>
+                    <button id="logoutBtn" class="btn-secondary">Logout</button>
+                </div>
             </div>
         </header>
 
@@ -155,7 +159,8 @@
                     
                     <div class="preview-right">
                         <div class="action-buttons">
-                            <button type="button" class="btn btn-primary" onclick="printInvitation()">🖨️ Print Invitation</button>
+                            <button type="button" class="btn btn-primary" onclick="createEventAndInvites()">🚀 Create Event & Generate Invites</button>
+                            <button type="button" class="btn btn-secondary" onclick="printInvitation()">🖨️ Print Invitation</button>
                             <button type="button" class="btn btn-secondary" onclick="previewRSVP()">👀 Preview RSVP Page</button>
                             <button type="button" class="btn btn-secondary" onclick="downloadInvitation()">📥 Download</button>
                         </div>

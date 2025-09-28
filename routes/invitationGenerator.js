@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const AIInvitationService = require('../services/aiInvitationService');
 const AnimationService = require('../services/animationService');
+const { sharedEventService, sharedInviteService } = require('../services/sharedServices');
+const { requireAuth } = require('../middleware/authMiddleware');
 const multer = require('multer');
 const path = require('path');
 
@@ -149,6 +151,58 @@ router.post('/generate', upload.array('photos', 5), async (req, res) => {
             success: false, 
             error: 'Failed to generate invitation',
             details: error.message 
+        });
+    }
+});
+
+// Create event and generate invites from AI invitation
+router.post('/create-event', requireAuth, async (req, res) => {
+    try {
+        const {
+            eventName,
+            eventDate,
+            eventTime,
+            eventLocation,
+            hostName,
+            hostEmail,
+            description,
+            invitationData,
+            inviteCount = 1
+        } = req.body;
+
+        // Create the event in the database
+        const event = await sharedEventService.createEvent(req.user.id, {
+            name: eventName,
+            date: eventDate,
+            time: eventTime,
+            location: eventLocation,
+            hostName: hostName,
+            hostEmail: hostEmail,
+            description: description,
+            imageUrl: invitationData.imageUrl || null
+        });
+
+        // Generate invites with QR codes
+        const invites = [];
+        for (let i = 0; i < inviteCount; i++) {
+            const invite = await sharedInviteService.createInvite(req.user.id, event.id, process.env.APP_URL);
+            invites.push(invite);
+        }
+
+        res.json({
+            success: true,
+            event: event,
+            invites: invites,
+            invitationData: invitationData,
+            message: 'Event created and invites generated successfully!'
+        });
+
+    } catch (error) {
+        console.error('Error creating event from invitation:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to create event from invitation',
+            details: error.message
         });
     }
 });
