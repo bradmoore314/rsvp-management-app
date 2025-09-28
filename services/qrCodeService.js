@@ -110,6 +110,7 @@ class QRCodeService {
                 eventId: eventId,
                 inviteCount: inviteCount,
                 qrCodes: results,
+                generatedAt: new Date().toISOString(),
                 timestamp: new Date().toISOString()
             };
         } catch (error) {

@@ -8,7 +8,7 @@ function withCookies(app) {
 }
 
 async function requireAuth(req, res, next) {
-    const token = req.cookies[SESSION_COOKIE];
+    const token = req.cookies && req.cookies[SESSION_COOKIE];
     const user = await verifySession(token);
     if (!user) {
         return res.status(401).json({ error: 'Authentication required' });
