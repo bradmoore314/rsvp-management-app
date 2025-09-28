@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RSVP</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <style>
+        body { font-family: sans-serif; background: #fefefe; margin: 0; }
+        main { max-width: 640px; margin: 0 auto; padding: 1.5rem; }
+        header { text-align: center; padding: 1.5rem 0; }
+        h1 { margin-bottom: 0.25rem; }
+        .event-meta { color: #555; margin-bottom: 1.5rem; }
+        form { background: #fff; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.08); }
+        label { display: block; margin-bottom: 0.35rem; font-weight: 600; }
+        input, select, textarea { width: 100%; padding: 0.5rem; margin-bottom: 1rem; border: 1px solid #ccc; border-radius: 4px; }
+        button { width: 100%; background: #007bff; color: #fff; border: none; border-radius: 4px; padding: 0.75rem; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .success { margin-top: 1rem; padding: 0.6rem; background: #e0f7ec; color: #0b7a4b; border-radius: 4px; }
+        .error { margin-top: 1rem; padding: 0.6rem; background: #fbeaea; color: #b71c1c; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <main>
+        <header>
+            <h1 id="eventName">Loading event...</h1>
+            <p class="event-meta" id="eventDetails"></p>
+        </header>
+
+        <form id="rsvpForm">
+            <input type="hidden" name="eventId" id="eventId" />
+            <input type="hidden" name="inviteId" id="inviteId" />
+
+            <label for="guestName">Your Name</label>
+            <input id="guestName" name="guestName" required />
+
+            <label for="guestEmail">Email</label>
+            <input id="guestEmail" name="guestEmail" type="email" required />
+
+            <label for="attendance">Will you attend?</label>
+            <select id="attendance" name="attendance" required>
+                <option value="" disabled selected>Select an option</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+                <option value="maybe">Maybe</option>
+            </select>
+
+            <label for="guestCount">Guests (including you)</label>
+            <input id="guestCount" name="guestCount" type="number" min="1" max="20" value="1" />
+
+            <label for="message">Message</label>
+            <textarea id="message" name="message" rows="3"></textarea>
+
+            <button type="submit">Submit RSVP</button>
+        </form>
+
+        <div id="feedback"></div>
+    </main>
+
+    <script src="js/rsvp.js"></script>
+</body>
+</html>

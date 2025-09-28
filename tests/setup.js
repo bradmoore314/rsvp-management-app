@@ -1,97 +1,31 @@
-// Test setup file for Jest
-// This file runs before each test file
+process.env.APP_URL = 'http://localhost:3000';
+process.env.APP_ORIGIN = 'http://localhost:3000';
+process.env.JWT_SECRET = 'test-secret';
+process.env.DATABASE_PATH = ':memory:';
+process.env.GOOGLE_CLIENT_ID = 'test-client';
+process.env.GOOGLE_CLIENT_SECRET = 'test-secret';
+process.env.GOOGLE_REDIRECT_URI = 'http://localhost/auth/google/callback';
 
-// Set test environment variables
-process.env.NODE_ENV = 'test';
-process.env.PORT = '3001';
-process.env.APP_URL = 'http://localhost:3001';
+const fs = require('fs');
+const path = require('path');
+const { getDB } = require('../services/db');
 
-// Mock console methods to reduce noise during tests
-const originalConsole = global.console;
-
-global.console = {
-  ...originalConsole,
-  // Keep error and warn for debugging
-  error: originalConsole.error,
-  warn: originalConsole.warn,
-  // Mock info and log to reduce noise
-  info: jest.fn(),
-  log: jest.fn(),
-  debug: jest.fn()
-};
-
-// Global test utilities
-global.testUtils = {
-  // Generate test data
-  generateTestEvent: () => ({
-    name: 'Test Event',
-    description: 'Test Description',
-    date: '2025-12-25',
-    time: '7:00 PM',
-    location: 'Test Location',
-    hostName: 'Test Host',
-    hostEmail: 'test@example.com',
-    showDietaryRestrictions: true,
-    showDressCode: false,
-    showHostMessage: true,
-    dressCode: '',
-    hostMessage: 'Test message',
-    eventCategory: 'Test',
-    eventTags: ['test'],
-    status: 'active',
-    reminderEnabled: false,
-    dietaryOptions: ['Vegetarian', 'Vegan', 'No Restrictions']
-  }),
-
-  generateTestRSVP: (eventId, inviteId) => ({
-    eventId: eventId || 'test-event-id',
-    inviteId: inviteId || 'test-invite-id',
-    guestName: 'Test Guest',
-    guestEmail: 'test@example.com',
-    guestPhone: '555-1234',
-    emergencyContact: 'Emergency Contact - 555-5678',
-    attendance: 'yes',
-    guestCount: 1,
-    dietaryOptions: ['Vegetarian'],
-    dietaryRestrictions: 'No nuts',
-    message: 'Test message',
-    timestamp: new Date().toISOString()
-  }),
-
-  // Wait for async operations
-  wait: (ms) => new Promise(resolve => setTimeout(resolve, ms)),
-
-  // Mock fetch responses
-  mockFetch: (response, status = 200) => {
-    global.fetch = jest.fn(() =>
-      Promise.resolve({
-        ok: status >= 200 && status < 300,
-        status: status,
-        json: () => Promise.resolve(response),
-        text: () => Promise.resolve(JSON.stringify(response))
-      })
-    );
-  },
-
-  // Reset fetch mock
-  resetFetch: () => {
-    if (global.fetch && global.fetch.mockReset) {
-      global.fetch.mockReset();
+beforeAll(async () => {
+    const db = await getDB();
+    const migrationsDir = path.join(__dirname, '..', 'db', 'migrations');
+    const files = fs.readdirSync(migrationsDir).filter(f => f.endsWith('.sql')).sort();
+    for (const file of files) {
+        const sql = fs.readFileSync(path.join(migrationsDir, file), 'utf8');
+        await db.exec(sql);
     }
-  }
-};
-
-// Clean up after each test
-afterEach(() => {
-  // Reset all mocks
-  jest.clearAllMocks();
-  
-  // Reset fetch mock
-  global.testUtils.resetFetch();
 });
 
-// Clean up after all tests
-afterAll(() => {
-  // Restore original console
-  global.console = originalConsole;
+beforeEach(async () => {
+    const db = await getDB();
+    await db.exec('DELETE FROM rsvps; DELETE FROM invites; DELETE FROM events; DELETE FROM users;');
+});
+
+afterAll(async () => {
+    const db = await getDB();
+    await db.close();
 });
