@@ -5,7 +5,7 @@ const { SESSION_COOKIE } = require('../middleware/authMiddleware');
 
 router.get('/google', (_req, res) => {
     const url = getAuthUrl();
-    res.json({ url });
+    res.redirect(url);
 });
 
 router.get('/google/callback', async (req, res) => {
