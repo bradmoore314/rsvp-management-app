@@ -6,23 +6,122 @@
     <title>RSVP Manager</title>
     <link rel="stylesheet" href="css/style.css" />
     <style>
-        body { font-family: sans-serif; background: #f1f1f1; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .landing { background: #fff; padding: 2rem 3rem; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; }
-        .landing h1 { margin-bottom: 0.5rem; }
-        .landing p { color: #666; margin-bottom: 1.5rem; }
-        .landing-actions { display: flex; gap: 1rem; justify-content: center; }
-        .btn { padding: 0.7rem 1.4rem; border-radius: 6px; border: none; cursor: pointer; background: #007bff; color: #fff; text-decoration: none; font-size: 1rem; }
-        .btn.secondary { background: #6c757d; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            margin: 0; 
+            color: #333;
+        }
+        .landing { 
+            background: rgba(255, 255, 255, 0.95); 
+            padding: 3rem 4rem; 
+            border-radius: 20px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1); 
+            text-align: center; 
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .landing h1 { 
+            margin-bottom: 0.5rem; 
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .landing p { 
+            color: #666; 
+            margin-bottom: 2rem; 
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+        .landing-actions { 
+            display: flex; 
+            gap: 1rem; 
+            justify-content: center; 
+            flex-wrap: wrap;
+        }
+        .btn { 
+            padding: 0.8rem 1.6rem; 
+            border-radius: 8px; 
+            border: none; 
+            cursor: pointer; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff; 
+            text-decoration: none; 
+            font-size: 1rem; 
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        .btn.secondary { 
+            background: rgba(108, 117, 125, 0.8);
+            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+        }
+        .btn.secondary:hover {
+            background: rgba(108, 117, 125, 1);
+            box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+        }
+        .features {
+            margin-top: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            text-align: left;
+        }
+        .feature {
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        .feature h3 {
+            margin: 0 0 0.5rem 0;
+            color: #333;
+            font-size: 1rem;
+        }
+        .feature p {
+            margin: 0;
+            color: #666;
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 <body>
     <main class="landing">
-        <h1>RSVP Manager</h1>
-        <p>Create events, share RSVP links, and track responses.</p>
+        <h1>🎉 RSVP Manager</h1>
+        <p>Create stunning AI-generated invitations, share RSVP links with QR codes, and track responses effortlessly.</p>
         <div class="landing-actions">
-            <a class="btn" href="/auth/google">Sign in with Google</a>
-            <a class="btn secondary" href="/rsvp.html">Guest RSVP Page</a>
-            <a class="btn secondary" href="/invitation-generator">AI Invitation Generator</a>
+            <a class="btn" href="/auth/google">🚀 Sign in with Google</a>
+            <a class="btn secondary" href="/rsvp.html">📝 Guest RSVP Page</a>
+            <a class="btn secondary" href="/invitation-generator">🎨 AI Invitation Generator</a>
+        </div>
+        
+        <div class="features">
+            <div class="feature">
+                <h3>🎨 AI-Powered Invitations</h3>
+                <p>Create beautiful, professional invitations with AI assistance</p>
+            </div>
+            <div class="feature">
+                <h3>📱 QR Code Integration</h3>
+                <p>Generate QR codes that link directly to RSVP forms</p>
+            </div>
+            <div class="feature">
+                <h3>📊 Response Tracking</h3>
+                <p>Track RSVP responses and export data to CSV</p>
+            </div>
+            <div class="feature">
+                <h3>🔐 Secure & Multi-tenant</h3>
+                <p>Each user manages their own events with Google OAuth</p>
+            </div>
         </div>
     </main>
 </body>
