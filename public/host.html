@@ -4,291 +4,75 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Event Manager</title>
-    <link rel="stylesheet" href="css/style.css" />
-    <style>
-        /* Custom styles for Event Manager */
-        .event-manager {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-        }
-        
-        .event-manager .container {
-            background: transparent;
-            padding: 0;
-        }
-        
-        .event-manager header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            margin: 20px;
-            padding: 2rem;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .event-manager header h1 {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-size: 3rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .event-manager header p {
-            color: #666;
-            font-size: 1.2rem;
-        }
-        
-        .logout-btn {
-            position: absolute;
-            top: 2rem;
-            right: 2rem;
-            background: rgba(255, 255, 255, 0.2);
-            color: #333;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 0.8rem 1.6rem;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        
-        .logout-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            border-color: rgba(255, 255, 255, 0.5);
-            transform: translateY(-2px);
-        }
-        
-        .event-manager main {
-            background: transparent;
-            box-shadow: none;
-            border: none;
-            padding: 20px;
-        }
-        
-        .event-section {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .event-section h2 {
-            color: #333;
-            font-size: 1.8rem;
-            margin-bottom: 1.5rem;
-            font-weight: 600;
-        }
-        
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-        
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: #333;
-            font-size: 1rem;
-        }
-        
-        .form-input {
-            width: 100%;
-            padding: 0.8rem 1rem;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            background: #fff;
-        }
-        
-        .form-input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-        
-        .btn {
-            padding: 0.8rem 1.6rem;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-            text-align: center;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-        }
-        
-        .btn-secondary {
-            background: rgba(108, 117, 125, 0.8);
-            color: white;
-            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
-        }
-        
-        .btn-secondary:hover {
-            background: rgba(108, 117, 125, 1);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
-        }
-        
-        .event-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: all 0.3s ease;
-        }
-        
-        .event-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
-        }
-        
-        .event-card h3 {
-            color: #333;
-            font-size: 1.3rem;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-        }
-        
-        .event-meta {
-            color: #666;
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-        }
-        
-        .actions {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-        
-        .qr-code {
-            margin-top: 1rem;
-            text-align: center;
-        }
-        
-        .qr-code img {
-            max-width: 150px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 3rem;
-            color: #666;
-        }
-        
-        .empty-state h3 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            color: #333;
-        }
-        
-        @media (max-width: 768px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-            
-            .event-manager header h1 {
-                font-size: 2rem;
-            }
-            
-            .logout-btn {
-                position: static;
-                margin-top: 1rem;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="css/modern.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="event-manager">
-    <div class="container">
-        <header>
+<body class="page-transition">
+    <div class="glass-container" style="margin: 2rem; min-height: calc(100vh - 4rem);">
+        <header class="modern-header">
             <h1>🎉 Event Manager</h1>
-            <p id="welcomeMessage">Create events, share RSVP links, and track responses.</p>
-            <button id="logoutBtn" class="logout-btn">Log Out</button>
+            <p id="welcomeMessage">Create stunning events, share RSVP links, and track responses effortlessly.</p>
+            <button id="logoutBtn" class="modern-logout">Log Out</button>
         </header>
         
-        <main>
-            <section class="event-section">
-                <h2>Create a New Event</h2>
-                <form id="eventForm" class="form">
-                    <div class="form-group">
-                        <label>Event Name</label>
-                        <input name="name" required class="form-input" placeholder="Enter event name" />
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Date</label>
-                            <input name="date" type="date" class="form-input" />
+        <main style="padding: 0 2rem 2rem;">
+            <!-- Create Event Section -->
+            <section class="glass-container" style="margin-bottom: 2rem;">
+                <div class="modern-form">
+                    <h2 style="font-size: 1.8rem; margin-bottom: 1.5rem; color: var(--text-primary); font-weight: 700;">Create a New Event</h2>
+                    
+                    <form id="eventForm">
+                        <div class="modern-form-group">
+                            <label class="modern-label">Event Name</label>
+                            <input name="name" required class="modern-input" placeholder="Enter your event name" />
                         </div>
-                        <div class="form-group">
-                            <label>Time</label>
-                            <input name="time" type="time" class="form-input" />
+
+                        <div class="modern-form-row">
+                            <div class="modern-form-group">
+                                <label class="modern-label">Date</label>
+                                <input name="date" type="date" class="modern-input" />
+                            </div>
+                            <div class="modern-form-group">
+                                <label class="modern-label">Time</label>
+                                <input name="time" type="time" class="modern-input" />
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label>Location</label>
-                        <input name="location" class="form-input" placeholder="Enter event location" />
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Host Name</label>
-                            <input name="hostName" class="form-input" placeholder="Your name" />
+                        <div class="modern-form-group">
+                            <label class="modern-label">Location</label>
+                            <input name="location" class="modern-input" placeholder="Where is your event?" />
                         </div>
-                        <div class="form-group">
-                            <label>Host Email</label>
-                            <input name="hostEmail" type="email" class="form-input" placeholder="your@email.com" />
+
+                        <div class="modern-form-row">
+                            <div class="modern-form-group">
+                                <label class="modern-label">Host Name</label>
+                                <input name="hostName" class="modern-input" placeholder="Your name" />
+                            </div>
+                            <div class="modern-form-group">
+                                <label class="modern-label">Host Email</label>
+                                <input name="hostEmail" type="email" class="modern-input" placeholder="your@email.com" />
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label>Description</label>
-                        <textarea name="description" rows="3" class="form-input" placeholder="Describe your event..."></textarea>
-                    </div>
+                        <div class="modern-form-group">
+                            <label class="modern-label">Description</label>
+                            <textarea name="description" rows="4" class="modern-input" placeholder="Tell your guests about your event..."></textarea>
+                        </div>
 
-                    <button type="submit" class="btn btn-primary">Create Event</button>
-                </form>
+                        <button type="submit" class="modern-btn modern-btn-primary">Create Event</button>
+                    </form>
+                </div>
             </section>
 
-            <section class="event-section">
-                <h2>Your Events</h2>
-                <div id="eventsList">
-                    <div class="empty-state">
-                        <h3>No events yet</h3>
-                        <p>Create your first event above to get started!</p>
+            <!-- Events List Section -->
+            <section class="glass-container">
+                <div style="padding: 2rem;">
+                    <h2 style="font-size: 1.8rem; margin-bottom: 1.5rem; color: var(--text-primary); font-weight: 700;">Your Events</h2>
+                    <div id="eventsList">
+                        <div class="modern-empty">
+                            <h3>No events yet</h3>
+                            <p>Create your first event above to get started!</p>
+                        </div>
                     </div>
                 </div>
             </section>
