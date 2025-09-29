@@ -5,67 +5,66 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Event Manager</title>
     <link rel="stylesheet" href="css/style.css" />
-    <style>
-        body { font-family: sans-serif; margin: 0; padding: 0; background: #f5f5f5; }
-        header { background: #222; color: #fff; padding: 1.5rem; }
-        main { max-width: 960px; margin: 0 auto; padding: 1.5rem; }
-        h1 { margin: 0 0 0.5rem; }
-        form { background: #fff; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.08); margin-bottom: 2rem; }
-        label { display: block; margin-bottom: 0.25rem; font-weight: 600; }
-        input, textarea { width: 100%; padding: 0.5rem; margin-bottom: 1rem; border: 1px solid #ccc; border-radius: 4px; }
-        button { background: #007bff; color: #fff; border: none; border-radius: 4px; padding: 0.6rem 1rem; cursor: pointer; }
-        button:hover { background: #0056b3; }
-        .event-card { background: #fff; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.08); margin-bottom: 1rem; }
-        .event-meta { color: #666; font-size: 0.9rem; }
-        .actions { margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
-        .secondary { background: #6c757d; }
-        .secondary:hover { background: #565e64; }
-        .qr { display: block; margin-top: 0.75rem; max-width: 180px; }
-        .rsvps { margin-top: 1rem; font-size: 0.95rem; }
-        .rsvp-row { display: flex; justify-content: space-between; padding: 0.4rem 0; border-bottom: 1px solid #eee; }
-        .empty { text-align: center; padding: 1.5rem; color: #777; }
-    </style>
 </head>
 <body>
-    <header>
-        <h1>Event Manager</h1>
-        <p id="welcomeMessage">Create events, share RSVP links, and track responses.</p>
-        <button id="logoutBtn" class="secondary" style="float:right;">Log Out</button>
-    </header>
-    <main>
-        <section>
-            <h2>Create a New Event</h2>
-            <form id="eventForm">
-                <label>Event Name</label>
-                <input name="name" required />
+    <div class="container">
+        <header>
+            <h1>🎉 Event Manager</h1>
+            <p id="welcomeMessage">Create events, share RSVP links, and track responses.</p>
+            <button id="logoutBtn" class="btn btn-secondary" style="float:right;">Log Out</button>
+        </header>
+        
+        <main>
+            <section class="card">
+                <h2>Create a New Event</h2>
+                <form id="eventForm" class="form">
+                    <div class="form-group">
+                        <label>Event Name</label>
+                        <input name="name" required class="form-input" />
+                    </div>
 
-                <label>Date</label>
-                <input name="date" type="date" />
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Date</label>
+                            <input name="date" type="date" class="form-input" />
+                        </div>
+                        <div class="form-group">
+                            <label>Time</label>
+                            <input name="time" type="time" class="form-input" />
+                        </div>
+                    </div>
 
-                <label>Time</label>
-                <input name="time" type="time" />
+                    <div class="form-group">
+                        <label>Location</label>
+                        <input name="location" class="form-input" />
+                    </div>
 
-                <label>Location</label>
-                <input name="location" />
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Host Name</label>
+                            <input name="hostName" class="form-input" />
+                        </div>
+                        <div class="form-group">
+                            <label>Host Email</label>
+                            <input name="hostEmail" type="email" class="form-input" />
+                        </div>
+                    </div>
 
-                <label>Host Name</label>
-                <input name="hostName" />
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea name="description" rows="3" class="form-input"></textarea>
+                    </div>
 
-                <label>Host Email</label>
-                <input name="hostEmail" type="email" />
+                    <button type="submit" class="btn btn-primary">Create Event</button>
+                </form>
+            </section>
 
-                <label>Description</label>
-                <textarea name="description" rows="3"></textarea>
-
-                <button type="submit">Create Event</button>
-            </form>
-        </section>
-
-        <section>
-            <h2>Your Events</h2>
-            <div id="eventsList"></div>
-        </section>
-    </main>
+            <section class="card">
+                <h2>Your Events</h2>
+                <div id="eventsList"></div>
+            </section>
+        </main>
+    </div>
 
     <script src="js/host.js"></script>
 </body>
